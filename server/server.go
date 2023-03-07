@@ -12,6 +12,7 @@ const (
 	ServerPort = ":8000"
 )
 //serve una map dove salvare client-connessione
+var clients = make(map[int]net.Conn)
 
 func main() {
 	fmt.Println("Avvio del server...")
@@ -42,19 +43,29 @@ func handleClient(conn net.Conn) {
 	
 	//buffer:= make([]byte,1024)
 	
-	//for {
+	for {
 		//fmt.Println("Attesa del client...")
 		request,_:=bufio.NewReader(conn).ReadString(' ')//provare readline
-		switch request {
+		switch request { 
+		case "REGISTER ":
+			usr:=bufio.NewReader(conn).ReadString(' ')
+			psw:=bufio.NewReader(conn).ReadString('\n')
+			done:= register(usr,psw) //TODO func register(usr,psw string) bool
 		case "LOGIN ":
-			/*usr,_:=bufio.NewReader(conn).ReadString(' ')
+			usr,_:=bufio.NewReader(conn).ReadString(' ')
 			psw,_:=bufio.NewReader(conn).ReadString('\n')
-			resp:=login(usr,psw)
+			resp:=login(usr,psw) //TODO func login(usr,psw string) bool
 			buffer = byte(resp[:])
-			conn.Write(buffer)*/
+			conn.Write(buffer)
+		case "ADDGAME ":
+			//cercare su igdb
+			done:= addgame(gamename) //TODO func addgame(name string) bool
+		case "ADDFRIEND ":
+			userlist:= finduser(gamename) //TODO func finduser(gamename string) []string
+			//decidere se fare mutua amicizia con richiesta o solo il segui
 		default:
 			fmt.Println(request)
-		//}
+		}
 	
 
 	}
