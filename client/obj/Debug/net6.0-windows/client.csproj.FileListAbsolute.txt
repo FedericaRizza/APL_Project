@@ -1,5 +1,4 @@
 C:\Users\feder\Documents\UProjects\APL\GameProject\client\obj\Debug\net6.0-windows\client.csproj.AssemblyReference.cache
-C:\Users\feder\Documents\UProjects\APL\GameProject\client\obj\Debug\net6.0-windows\client.Form1.resources
 C:\Users\feder\Documents\UProjects\APL\GameProject\client\obj\Debug\net6.0-windows\client.csproj.GenerateResource.cache
 C:\Users\feder\Documents\UProjects\APL\GameProject\client\obj\Debug\net6.0-windows\client.GeneratedMSBuildEditorConfig.editorconfig
 C:\Users\feder\Documents\UProjects\APL\GameProject\client\obj\Debug\net6.0-windows\client.AssemblyInfoInputs.cache
@@ -15,3 +14,5 @@ C:\Users\feder\Documents\UProjects\APL\GameProject\client\obj\Debug\net6.0-windo
 C:\Users\feder\Documents\UProjects\APL\GameProject\client\obj\Debug\net6.0-windows\client.pdb
 C:\Users\feder\Documents\UProjects\APL\GameProject\client\obj\Debug\net6.0-windows\client.genruntimeconfig.cache
 C:\Users\feder\Documents\UProjects\APL\GameProject\client\obj\Debug\net6.0-windows\ref\client.dll
+C:\Users\feder\Documents\UProjects\APL\GameProject\client\obj\Debug\net6.0-windows\client.RegForm.resources
+C:\Users\feder\Documents\UProjects\APL\GameProject\client\obj\Debug\net6.0-windows\client.LogForm.resources

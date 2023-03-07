@@ -11,6 +11,7 @@ const (
 	ServerType = "tcp"
 	ServerPort = ":8000"
 )
+//serve una map dove salvare client-connessione
 
 func main() {
 	fmt.Println("Avvio del server...")
@@ -23,14 +24,14 @@ func main() {
 
 	defer server.Close()
 
-	for i:=0;i<1;i++{
+	for {
 		connection, err := server.Accept()
 		if err!=nil {
 			fmt.Println("Errore di connessione")
 			return
 		}
 
-		 handleClient(connection)
+		go handleClient(connection)
 
 	}
 }
@@ -41,7 +42,7 @@ func handleClient(conn net.Conn) {
 	
 	//buffer:= make([]byte,1024)
 	
-	for {
+	//for {
 		//fmt.Println("Attesa del client...")
 		request,_:=bufio.NewReader(conn).ReadString(' ')//provare readline
 		switch request {
@@ -53,7 +54,7 @@ func handleClient(conn net.Conn) {
 			conn.Write(buffer)*/
 		default:
 			fmt.Println(request)
-		}
+		//}
 	
 
 	}
