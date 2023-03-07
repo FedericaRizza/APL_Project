@@ -59,9 +59,9 @@ func handleClient(conn net.Conn) {
 			conn.Write(buffer)
 		case "ADDGAME ":
 			//cercare su igdb
-			done:= addgame(gamename) //TODO func addgame(name string) bool
+			done:= addGame(gamename) //TODO func addgame(name string) bool
 		case "ADDFRIEND ":
-			userlist:= finduser(gamename) //TODO func finduser(gamename string) []string
+			userlist:= findUser(gamename) //TODO func finduser(gamename string) []string
 			//decidere se fare mutua amicizia con richiesta o solo il segui
 		default:
 			fmt.Println(request)
