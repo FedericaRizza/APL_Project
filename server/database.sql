@@ -1,12 +1,9 @@
-create database SocialGames;
+CREATE DATABASE IF NOT EXISTS SocialGames;
 
-use SocialGames;
+USE SocialGames;
 
-drop table utenti;
-drop table amici;
-
-CREATE TABLE utenti (
-	id_utente INT(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE IF NOT EXISTS utenti (
+	id_utente INT NOT NULL AUTO_INCREMENT,
     nickname VARCHAR(255) NOT NULL,
     pass VARCHAR(255) NOT NULL,
     PRIMARY KEY(id_utente),
@@ -14,26 +11,26 @@ CREATE TABLE utenti (
 );
 
 
-CREATE TABLE amici (
+CREATE TABLE IF NOT EXISTS seguiti (
 	id INT(11) NOT NULL AUTO_INCREMENT,
     utente INT(11) NOT NULL,
-    amico INT(11) NOT NULL,
-    UNIQUE (utente,amico),
+    seguito INT(11) NOT NULL,
+    UNIQUE (utente,seguito),
     PRIMARY KEY (id),
     FOREIGN KEY (utente) REFERENCES utenti(id_utente) ON DELETE CASCADE,
-    FOREIGN KEY (amico) REFERENCES utenti(id_utente) ON DELETE CASCADE
+    FOREIGN KEY (seguito) REFERENCES utenti(id_utente) ON DELETE CASCADE
     
 );
 
 
-CREATE TABLE giochi (
+CREATE TABLE IF NOT EXISTS giochi (
 	id_gioco INT(11) NOT NULL AUTO_INCREMENT,
     nome VARCHAR(255) NOT NULL,
     UNIQUE (nome),
     PRIMARY KEY (id_gioco)
 );
 
-CREATE TABLE utente_giochi (
+CREATE TABLE IF NOT EXISTS utente_giochi (
 	utente INT(11) NOT NULL,
     gioco INT(11) NOT NULL, 
 	PRIMARY KEY(utente, gioco),
@@ -42,12 +39,12 @@ CREATE TABLE utente_giochi (
 );
 
 
-CREATE TABLE conversazioni (
+CREATE TABLE IF NOT EXISTS conversazioni (
 	id_conversazione INT(11) NOT NULL AUTO_INCREMENT,
     PRIMARY KEY(id_conversazione)
 );
 
-CREATE TABLE messaggi (
+CREATE TABLE IF NOT EXISTS messaggi (
 	id_messaggio TIMESTAMP NOT NULL,
     conversazione INT(11) NOT NULL,
     mittente INT(11) NOT NULL,

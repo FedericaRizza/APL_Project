@@ -1,0 +1,18 @@
+version: '2'
+services:
+  SocialGames:
+    image: mysql
+    restart: always
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_DATABASE: SocialGames
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
+    volumes:
+      - ./database.sql:/docker-entrypoint-initdb.d/database.sql
+      - db_social:/var/lib/mysql
+    container_name: db
+volumes:
+  db_social:
