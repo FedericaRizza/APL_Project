@@ -56,14 +56,30 @@ func handleClient(conn net.Conn) {
 
 		//switch per gestire le varie richieste del client
 		switch request {
+
+		case "REGISTER ":
+			usr := bufio.NewReader(conn).ReadString(' ')
+			psw := bufio.NewReader(conn).ReadString('\n')
+			done := register(usr, psw) //TODO func register(usr,psw string) bool
+
 		case "LOGIN ":
-			/*usr,_:=bufio.NewReader(conn).ReadString(' ')
-			psw,_:=bufio.NewReader(conn).ReadString('\n')
-			resp:=login(usr,psw)
+			usr, _ := bufio.NewReader(conn).ReadString(' ')
+			psw, _ := bufio.NewReader(conn).ReadString('\n')
+			resp := login(usr, psw) //TODO func login(usr,psw string) bool
 			buffer = byte(resp[:])
-			conn.Write(buffer)*/
+			conn.Write(buffer)
+
+		case "ADDGAME ":
+			//cercare su igdb
+			done := addGame(gamename) //TODO func addgame(name string) bool
+
+		case "ADDFRIEND ":
+			userlist, done := findUser(gamename) //TODO func finduser(gamename string) []string
+			//decidere se fare mutua amicizia con richiesta o solo il segui
+
 		default:
 			fmt.Println(request)
+
 		}
 
 	}
