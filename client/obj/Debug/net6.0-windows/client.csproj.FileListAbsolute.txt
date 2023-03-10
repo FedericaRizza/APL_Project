@@ -16,3 +16,5 @@ C:\Users\feder\Documents\UProjects\APL\GameProject\client\obj\Debug\net6.0-windo
 C:\Users\feder\Documents\UProjects\APL\GameProject\client\obj\Debug\net6.0-windows\ref\client.dll
 C:\Users\feder\Documents\UProjects\APL\GameProject\client\obj\Debug\net6.0-windows\client.RegForm.resources
 C:\Users\feder\Documents\UProjects\APL\GameProject\client\obj\Debug\net6.0-windows\client.LogForm.resources
+C:\Users\feder\Documents\UProjects\APL\GameProject\client\obj\Debug\net6.0-windows\client.HomeForm.resources
+C:\Users\feder\Documents\UProjects\APL\GameProject\client\obj\Debug\net6.0-windows\client.AddFriendForm.resources
