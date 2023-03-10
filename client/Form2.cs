@@ -12,7 +12,7 @@ namespace client
 {
     public partial class LogForm : Form
     {
-        RegForm register;
+        private RegForm register;
         public LogForm(RegForm reg)
         {
             InitializeComponent();
@@ -25,6 +25,34 @@ namespace client
             this.Close();
             //RegForm register= new RegForm();
             register.Show();
+        }
+
+        private void buttonLog_Click(object sender, EventArgs e)
+        {
+            if (textBoxNick.Text.Length == 0 )
+            {
+                MessageBox.Show("Inserire nickname");
+                return;
+            }
+
+            if (textBoxPsw.Text.Length == 0)
+            {
+                MessageBox.Show("Inserire password");
+                return;
+            }
+
+            if (Client.SendLogin(textBoxNick.Text, textBoxPsw.Text))
+            {
+                HomeForm home = new HomeForm();
+                home.Show();
+                this.Close();
+            }
+            else
+            {
+                MessageBox.Show("Nickname o password errati, riprovare!");
+                return;
+            }
+            
         }
     }
 }
