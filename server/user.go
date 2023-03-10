@@ -1,28 +1,32 @@
 package main
 
+//i campi della struttura devono essere public per poter essere esportati in json, la struttura può restare privata
 type user struct {
-	userID               int
-	nick                 string
-	gameList, friendList []string
+	UserID int `json:"UserID"`
+	Nick string `json:"Nick"`
+	GameList []string `json:"GameList"`
+	FollowingList []string `json:"FollowingList"`
 	//requestList?
 }
 
-func (u *user) setGameList(game string) { //variadic cosi può inserire string o list?
-	u.gameList = append(u.gameList, game)
+func (u *user) setGameList(game string) { 
+	u.GameList = append(u.GameList, game)
+}
+
+func (u *user) setFollowingList(fID string) {
+	u.FollowingList = append(u.FollowingList, fID)
 }
 
 /*
 func (u *user) setID (id int) {
-	u.userID=id
+	u.UserID=id
 }
 
 func (u *user) setNick (nick string) {
-	u.nick = nick
+	u.Nick = nick
 }
 
 
 
-func (u *user) addFriend (friendID string) {
-	u.friendList = append(u.friendList, friendID)
-}
+
 */
