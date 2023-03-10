@@ -1,7 +1,8 @@
 namespace client
 {
-    internal static class Program
+    internal static class GameProject
     {
+        
         /// <summary>
         ///  The main entry point for the application.
         /// </summary>
