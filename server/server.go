@@ -11,7 +11,8 @@ const (
 	ServerType = "tcp"
 	ServerPort = ":8000"
 )
-//serve una map dove salvare client-connessione
+
+// serve una map dove salvare client-connessione
 var clients = make(map[int]net.Conn)
 
 func main() {
@@ -27,25 +28,19 @@ func main() {
 
 	defer server.Close()
 
-<<<<<<< HEAD
-	for i := 0; i < 1; i++ {
-		//accept viene usata per accettare nuove connessioni in entrata sulla porta del server.
-		//se la connessione è accettata con successo viene restituita un'istanza della connessione (net.Conn) che mi rappresenta la connessione appena stabilita tra il server e il vlient
-		//in questo caso viene fatto dentro ad un loop che viene eseguito solo una volta, per accettare quindi una singola connessione
-=======
+	//accept viene usata per accettare nuove connessioni in entrata sulla porta del server.
+	//se la connessione è accettata con successo viene restituita un'istanza della connessione (net.Conn) che mi rappresenta la connessione appena stabilita tra il server e il vlient
+	//in questo caso viene fatto dentro ad un loop che viene eseguito solo una volta, per accettare quindi una singola connessione
+
 	for {
->>>>>>> 92a4d427309b2a2289c8fb6dd6ca0208e2e47ddb
+
 		connection, err := server.Accept()
 		if err != nil {
 			fmt.Println("Errore di connessione")
 			return
 		}
 
-<<<<<<< HEAD
-		handleClient(connection) //gestisce la connessione appena aperta
-=======
 		go handleClient(connection)
->>>>>>> 92a4d427309b2a2289c8fb6dd6ca0208e2e47ddb
 
 	}
 }
