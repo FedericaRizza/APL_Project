@@ -11,8 +11,7 @@ const (
 	ServerType = "tcp"
 	ServerPort = ":8000"
 )
-
-// serve una map dove salvare client-connessione
+//serve una map dove salvare client-connessione
 var clients = make(map[int]net.Conn)
 
 func main() {
@@ -28,14 +27,25 @@ func main() {
 
 	defer server.Close()
 
+<<<<<<< HEAD
 	for i := 0; i < 1; i++ {
+		//accept viene usata per accettare nuove connessioni in entrata sulla porta del server.
+		//se la connessione è accettata con successo viene restituita un'istanza della connessione (net.Conn) che mi rappresenta la connessione appena stabilita tra il server e il vlient
+		//in questo caso viene fatto dentro ad un loop che viene eseguito solo una volta, per accettare quindi una singola connessione
+=======
+	for {
+>>>>>>> 92a4d427309b2a2289c8fb6dd6ca0208e2e47ddb
 		connection, err := server.Accept()
 		if err != nil {
 			fmt.Println("Errore di connessione")
 			return
 		}
 
-		handleClient(connection)
+<<<<<<< HEAD
+		handleClient(connection) //gestisce la connessione appena aperta
+=======
+		go handleClient(connection)
+>>>>>>> 92a4d427309b2a2289c8fb6dd6ca0208e2e47ddb
 
 	}
 }
@@ -50,14 +60,32 @@ func handleClient(conn net.Conn) {
 	for {
 		//cicla continuamente finchè il clienti rimane connesso
 		//fmt.Println("Attesa del client...")
+
+		//legge il messaggio del client
 		request, _ := bufio.NewReader(conn).ReadString(' ') //provare readline
+
+		//switch per gestire le varie richieste del client
 		switch request {
+
+		case "REGISTER ":
+			usr := bufio.NewReader(conn).ReadString(' ')
+			psw := bufio.NewReader(conn).ReadString('\n')
+			done := register(usr, psw) //TODO func register(usr,psw string) bool
+
 		case "LOGIN ":
-			/*usr,_:=bufio.NewReader(conn).ReadString(' ')
-			psw,_:=bufio.NewReader(conn).ReadString('\n')
-			resp:=login(usr,psw)
+			usr, _ := bufio.NewReader(conn).ReadString(' ')
+			psw, _ := bufio.NewReader(conn).ReadString('\n')
+			resp := login(usr, psw) //TODO func login(usr,psw string) bool
 			buffer = byte(resp[:])
-			conn.Write(buffer)*/
+			conn.Write(buffer)
+
+		case "ADDGAME ":
+			//cercare su igdb
+			done := addGame(gamename) //TODO func addgame(name string) bool
+
+		case "ADDFRIEND ":
+			userlist, done := findUser(gamename) //TODO func finduser(gamename string) []string
+			//decidere se fare mutua amicizia con richiesta o solo il segui
 		default:
 			fmt.Println(request)
 
