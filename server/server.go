@@ -53,13 +53,19 @@ func main() {
 // chiamata ogni volta che un client si connette al server
 func handleClient(conn net.Conn) {
 	defer conn.Close()
-	
+	//appena il client termina la comunicazione, la connesione viene chiusa
+
 	var utente user
 	
 	buffer:= make([]byte,1024)
 	
 	for {
+		//cicla continuamente finchè il clienti rimane connesso
+		//fmt.Println("Attesa del client...")
+
+		//legge il messaggio del client
 		request,_:=bufio.NewReader(conn).ReadString(' ')//provare readline
+		//switch per gestire le varie richieste del client
 		switch request { 
 		case "REGISTER ":
 			usr,_:=bufio.NewReader(conn).ReadString(' ')
@@ -104,8 +110,12 @@ func handleClient(conn net.Conn) {
 				conn.Write(buffer)
 			}
 			conn.Write([]byte("*")) //indica la fine della lista giochi
+
 			gameName,_:=bufio.NewReader(conn).ReadString('\n')
 			gameName = strings.ReplaceAll(gameName, "\n", "")
+			if gameName=="ABORT" {
+				break
+			}
 			//se salva correttamente nel db lo aggiunge in gameList di utente
 			done:= addGame(gameName, utente.UserID) 
 			if done {
@@ -116,10 +126,10 @@ func handleClient(conn net.Conn) {
 			}
 			conn.Write(buffer)
 
-		case "ADDFRIEND ":
+		case "FOLLOW ":
 			gameName,_:=bufio.NewReader(conn).ReadString('\n')
 			gameName = strings.ReplaceAll(gameName, "\n", "")
-			userMap:= findUser(gameName)
+			userMap,err:= findUser(gameName)
 			//decidere se fare mutua amicizia con richiesta o solo il segui
 			delete(userMap, utente.UserID)			
 			//invia lista utenti
@@ -129,21 +139,21 @@ func handleClient(conn net.Conn) {
 			}
 			conn.Write([]byte("*"))
 			
-			//riceve nick friend
-			friend,_:= bufio.NewReader(conn).ReadString('\n')
-			friend = strings.ReplaceAll(friend, "\n", "")
-			if friend=="ABORT" {
+			//riceve nick dell'utente da aggiungere
+			userName,_:= bufio.NewReader(conn).ReadString('\n')
+			userName = strings.ReplaceAll(userName, "\n", "")
+			if userName=="ABORT" {
 				break
 			}
 			var done bool
 			for uID:= range userMap {
-				if userMap[uID]==friend {
+				if userMap[uID]==userName {
 					done = followUser(utente.UserID, uID)
 					return
 				}
 			}
 			if done {
-				utente.setFollowingList(friend)
+				utente.setFollowingList(userName)
 				buffer=[]byte("1")
 			} else {
 				buffer=[]byte("0")

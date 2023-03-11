@@ -75,9 +75,10 @@ namespace client
             { 
                 //salvataggio dati utente in locale
                 Array.Clear(buffer);
-                //da sistemare
+                
                 client.Receive(buffer);
-                utente = JsonSerializer.Deserialize<User>(buffer);
+                byte[] jsonObj = buffer.Take(len).ToArray();
+                utente = JsonSerializer.Deserialize<User>(jsonObj);
                 return true;
             }
                 
@@ -85,11 +86,11 @@ namespace client
             else return false;
         }
 
-        public static string[] SearchFriend(String GameName)
+        public static string[] SearchUser(String GameName)
         {
             String[] userList = null;
             byte[] buffer = new byte[1024];
-            byte[] msg = Encoding.ASCII.GetBytes("ADDFRIEND " + GameName + "\n");
+            byte[] msg = Encoding.ASCII.GetBytes("FOLLOW " + GameName + "\n");
             client.Send(msg);
             int len = client.Receive(buffer);
 
@@ -106,10 +107,10 @@ namespace client
 
         }
 
-        public static bool AddFriend(String FriendName)
+        public static bool FollowUser(String Name)
         {
             byte[] buffer = new byte[1024];
-            byte[] msg = Encoding.ASCII.GetBytes(FriendName + "\n");
+            byte[] msg = Encoding.ASCII.GetBytes(Name + "\n");
             client.Send(msg);
 
             int len = client.Receive(buffer);
@@ -118,7 +119,10 @@ namespace client
                 return false;
 
             if (Encoding.ASCII.GetString(buffer).Equals("1"))
+            {
+                utente.FollowingList.Add(Name);
                 return true;
+            }
 
             else return false;
         }
@@ -127,6 +131,44 @@ namespace client
         {
             byte[] msg = Encoding.ASCII.GetBytes("ABORT\n");
             client.Send(msg);
+        }
+
+        public static String[] SearchGame(String GameName)
+        {
+            String[] gameList = null;
+            byte[] buffer = new byte[1024];
+            byte[] msg = Encoding.ASCII.GetBytes("ADDGAME " + GameName);
+            client.Send(msg);
+            int len = client.Receive(buffer);
+
+            if (len == 0)
+                return gameList;
+            while (!Encoding.ASCII.GetString(buffer).Equals("*"))
+            {
+                gameList.Append(Encoding.ASCII.GetString(buffer));
+                Array.Clear(buffer);
+                client.Receive(buffer);
+            }
+
+            return gameList;
+        }
+
+        public static bool AddGame(String GameName)
+        {
+            byte[] buffer = new byte[1024];
+            byte[] msg = Encoding.ASCII.GetBytes(GameName + "\n");
+            client.Send(msg);
+
+            int len = client.Receive(buffer);
+            if (len == 0) 
+                return false;
+            if (Encoding.ASCII.GetString(buffer).Equals("1"))
+            {
+                utente.GameList.Add(GameName);
+                return true;
+            }
+            else
+                return false;
         }
 
     }

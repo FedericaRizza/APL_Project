@@ -10,10 +10,10 @@ using System.Windows.Forms;
 
 namespace client
 {
-    public partial class AddFriendForm : Form
+    public partial class AddUserForm : Form
     {
         private HomeForm home;
-        public AddFriendForm(HomeForm home)
+        public AddUserForm(HomeForm home)
         {
             InitializeComponent();
             this.home = home;
@@ -28,10 +28,10 @@ namespace client
         {
             if (listBoxGames.SelectedItem != null)
             {
-                var friends = Client.SearchFriend(listBoxGames.SelectedItem.ToString());
-                if (friends != null)
+                var users = Client.SearchUser(listBoxGames.SelectedItem.ToString());
+                if (users != null)
                 {
-                    listBoxUser.Items.AddRange(friends);
+                    listBoxUser.Items.AddRange(users);
                     panel2.BringToFront();
 
                 }
@@ -52,12 +52,12 @@ namespace client
         {
             if (listBoxGames.SelectedItem != null)
             {
-                if (Client.AddFriend(listBoxGames.SelectedItem.ToString()))
+                if (Client.FollowUser(listBoxGames.SelectedItem.ToString()))
                 {
-                    MessageBox.Show("Amico aggiunto");
-                    //AGGIORNARE DATI UTENTE
-                    home.listBoxFriends.Items.Add(listBoxGames.SelectedItem.ToString());
-                    home.listBoxFriends.Refresh();
+                    MessageBox.Show("Utente seguito");
+                    
+                    home.listBoxFollowing.Items.Add(listBoxGames.SelectedItem.ToString());
+                    home.listBoxFollowing.Refresh();
                     this.Close();
                 }
                 else

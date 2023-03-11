@@ -90,7 +90,7 @@ func login(nick string, psw string, u *user) bool {
 	defer db.Close()
 
 	//controllo che nickname e password siano presenti nel DB
-	e := db.QueryRow("SELECT id_utente, nickname FROM utenti WHERE nickname = ? AND pass = ?", nick, psw).Scan(&u.userID, &u.nick)
+	e := db.QueryRow("SELECT id_utente, nickname FROM utenti WHERE nickname = ? AND pass = ?", nick, psw).Scan(&u.UserID, &u.Nick)
 	if e != nil {
 		//ovviamente se entra qui basta per non poter fare il login
 		return false
@@ -105,7 +105,7 @@ func login(nick string, psw string, u *user) bool {
 	for rows.Next() {
 		var gioco string
 		rows.Scan(&gioco)
-		u.gameList = append(u.gameList, gioco) //append restituisce un nuovo slice contenente gli elementi aggiunti
+		u.GameList = append(u.GameList, gioco) //append restituisce un nuovo slice contenente gli elementi aggiunti
 	}
 
 	//restituisco la lista dei seguiti
@@ -117,7 +117,7 @@ func login(nick string, psw string, u *user) bool {
 	for rows1.Next() {
 		var amico string
 		rows1.Scan(&amico)
-		u.followingList = append(u.followingList, amico) //append restituisce un nuovo slice contenente gli elementi aggiunti
+		u.FollowingList = append(u.FollowingList, amico) //append restituisce un nuovo slice contenente gli elementi aggiunti
 	}
 
 	//prove stampe
@@ -201,7 +201,7 @@ func findUser(gameName string) (map[int]string, bool) {
 
 }
 
-func addFollowing(userID int, follwingID int) bool {
+func followUser(userID int, follwingID int) bool {
 
 	db, err := connectDB()
 

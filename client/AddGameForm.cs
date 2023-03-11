@@ -42,7 +42,7 @@ namespace client
 
             }
             else
-                MessageBox.Show("Non è stato trovato nessun utente");
+                MessageBox.Show("Non è stato trovato nessun gioco");
         }
 
         private void buttonAdd_Click(object sender, EventArgs e)
@@ -52,7 +52,7 @@ namespace client
                 if (Client.AddGame(listBoxGames.SelectedItem.ToString()))
                 {
                     MessageBox.Show("Gioco aggiunto");
-                    //AGGIORNARE DATI UTENTE
+                    
                     home.listBoxGames.Items.Add(listBoxGames.SelectedItem.ToString());
                     home.listBoxGames.Refresh();
                     this.Close();

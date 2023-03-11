@@ -10,7 +10,7 @@ namespace client
     {
         public int UserID { get; set; }
         public String Nick { get; set; }
-        public String[] GameList { get; set; }
-        public String[] FollowingList { get; set; }
+        public IList<String> GameList { get; set; }
+        public IList<String> FollowingList { get; set; }
     }
 }

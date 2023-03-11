@@ -33,10 +33,10 @@
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.listBoxGames = new System.Windows.Forms.ListBox();
-            this.listBoxFriends = new System.Windows.Forms.ListBox();
+            this.listBoxFollowing = new System.Windows.Forms.ListBox();
             this.panelUser = new System.Windows.Forms.Panel();
             this.buttonLogout = new System.Windows.Forms.Button();
-            this.buttonFindFriend = new System.Windows.Forms.Button();
+            this.buttonFindUser = new System.Windows.Forms.Button();
             this.buttonAddGame = new System.Windows.Forms.Button();
             this.labelUser = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
@@ -62,7 +62,7 @@
             this.tableLayoutPanel1.Controls.Add(this.label1, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.label2, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.listBoxGames, 0, 1);
-            this.tableLayoutPanel1.Controls.Add(this.listBoxFriends, 1, 1);
+            this.tableLayoutPanel1.Controls.Add(this.listBoxFollowing, 1, 1);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Font = new System.Drawing.Font("Segoe UI", 10.125F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
@@ -87,9 +87,9 @@
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(674, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(83, 37);
+            this.label2.Size = new System.Drawing.Size(134, 37);
             this.label2.TabIndex = 1;
-            this.label2.Text = "Amici";
+            this.label2.Text = "Following";
             // 
             // listBoxGames
             // 
@@ -101,21 +101,21 @@
             this.listBoxGames.Size = new System.Drawing.Size(665, 780);
             this.listBoxGames.TabIndex = 2;
             // 
-            // listBoxFriends
+            // listBoxFollowing
             // 
-            this.listBoxFriends.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.listBoxFriends.FormattingEnabled = true;
-            this.listBoxFriends.ItemHeight = 37;
-            this.listBoxFriends.Location = new System.Drawing.Point(674, 40);
-            this.listBoxFriends.Name = "listBoxFriends";
-            this.listBoxFriends.Size = new System.Drawing.Size(666, 780);
-            this.listBoxFriends.TabIndex = 3;
+            this.listBoxFollowing.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.listBoxFollowing.FormattingEnabled = true;
+            this.listBoxFollowing.ItemHeight = 37;
+            this.listBoxFollowing.Location = new System.Drawing.Point(674, 40);
+            this.listBoxFollowing.Name = "listBoxFollowing";
+            this.listBoxFollowing.Size = new System.Drawing.Size(666, 780);
+            this.listBoxFollowing.TabIndex = 3;
             // 
             // panelUser
             // 
             this.panelUser.BackColor = System.Drawing.SystemColors.HotTrack;
             this.panelUser.Controls.Add(this.buttonLogout);
-            this.panelUser.Controls.Add(this.buttonFindFriend);
+            this.panelUser.Controls.Add(this.buttonFindUser);
             this.panelUser.Controls.Add(this.buttonAddGame);
             this.panelUser.Controls.Add(this.labelUser);
             this.panelUser.Location = new System.Drawing.Point(1016, 32);
@@ -140,19 +140,19 @@
             this.buttonLogout.UseVisualStyleBackColor = false;
             this.buttonLogout.Click += new System.EventHandler(this.buttonLogout_Click);
             // 
-            // buttonFindFriend
+            // buttonFindUser
             // 
-            this.buttonFindFriend.BackColor = System.Drawing.SystemColors.HotTrack;
-            this.buttonFindFriend.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.buttonFindFriend.Font = new System.Drawing.Font("Segoe UI", 10.125F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.buttonFindFriend.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.buttonFindFriend.Location = new System.Drawing.Point(0, 146);
-            this.buttonFindFriend.Name = "buttonFindFriend";
-            this.buttonFindFriend.Size = new System.Drawing.Size(301, 89);
-            this.buttonFindFriend.TabIndex = 2;
-            this.buttonFindFriend.Text = "Cerca amici";
-            this.buttonFindFriend.UseVisualStyleBackColor = false;
-            this.buttonFindFriend.Click += new System.EventHandler(this.buttonFindFriend_Click);
+            this.buttonFindUser.BackColor = System.Drawing.SystemColors.HotTrack;
+            this.buttonFindUser.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.buttonFindUser.Font = new System.Drawing.Font("Segoe UI", 10.125F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.buttonFindUser.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.buttonFindUser.Location = new System.Drawing.Point(0, 146);
+            this.buttonFindUser.Name = "buttonFindUser";
+            this.buttonFindUser.Size = new System.Drawing.Size(301, 89);
+            this.buttonFindUser.TabIndex = 2;
+            this.buttonFindUser.Text = "Cerca utenti";
+            this.buttonFindUser.UseVisualStyleBackColor = false;
+            this.buttonFindUser.Click += new System.EventHandler(this.buttonFindUser_Click);
             // 
             // buttonAddGame
             // 
@@ -192,7 +192,7 @@
             this.Controls.Add(this.panel1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "HomeForm";
-            this.Text = "HomeForm";
+            this.Text = "Game Project";
             this.panel1.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
@@ -208,12 +208,12 @@
         private Label labelUser;
         private Panel panelUser;
         private Button buttonLogout;
-        private Button buttonFindFriend;
+        private Button buttonFindUser;
         private Button buttonAddGame;
         private TableLayoutPanel tableLayoutPanel1;
         private Label label1;
         private Label label2;
         public ListBox listBoxGames;
-        public ListBox listBoxFriends;
+        public ListBox listBoxFollowing;
     }
 }

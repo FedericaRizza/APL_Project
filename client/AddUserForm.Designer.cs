@@ -1,6 +1,6 @@
 ﻿namespace client
 {
-    partial class AddFriendForm
+    partial class AddUserForm
     {
         /// <summary>
         /// Required designer variable.
@@ -64,7 +64,7 @@
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(432, 37);
             this.label1.TabIndex = 1;
-            this.label1.Text = "Per quale gioco vuoi cercare amici?";
+            this.label1.Text = "Per quale gioco vuoi cercare utenti?";
             // 
             // buttonSearch
             // 
@@ -155,16 +155,16 @@
             this.listBoxUser.Size = new System.Drawing.Size(429, 374);
             this.listBoxUser.TabIndex = 0;
             // 
-            // AddFriendForm
+            // AddUserForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(571, 745);
             this.Controls.Add(this.panel1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.Name = "AddFriendForm";
+            this.Name = "AddUserForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Aggiungi amico";
+            this.Text = "Aggiungi utente";
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.panel2.ResumeLayout(false);

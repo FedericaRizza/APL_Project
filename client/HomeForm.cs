@@ -21,16 +21,16 @@ namespace client
         {
             panelUser.BringToFront();
             buttonAddGame.BringToFront();
-            buttonFindFriend.BringToFront();
+            buttonFindUser.BringToFront();
             buttonLogout.BringToFront();
             panelUser.Size = panelUser.MaximumSize;
         }
 
-        private void buttonFindFriend_Click(object sender, EventArgs e)
+        private void buttonFindUser_Click(object sender, EventArgs e)
         {
             panelUser.Size = panelUser.MinimumSize;
-            AddFriendForm addFriend = new AddFriendForm(this);
-            addFriend.Show();
+            AddUserForm addUser = new AddUserForm(this);
+            addUser.Show();
         }
 
         private void buttonAddGame_Click(object sender, EventArgs e)
