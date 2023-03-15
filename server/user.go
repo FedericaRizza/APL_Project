@@ -5,16 +5,20 @@ type user struct {
 	UserID int `json:"UserID"`
 	Nick string `json:"Nick"`
 	GameList []string `json:"GameList"`
-	FollowingList []string `json:"FollowingList"`
-	//requestList?
+	FollowingList map[int]string `json:"FollowingList"`
+}
+
+func newUser() *user {
+	u := &user{GameList : make([]string,0), FollowingList : make(map[int]string)}
+	return u
 }
 
 func (u *user) setGameList(game string) { 
 	u.GameList = append(u.GameList, game)
 }
 
-func (u *user) setFollowingList(fID string) {
-	u.FollowingList = append(u.FollowingList, fID)
+func (u *user) setFollowingList(fID int, name string) {
+	u.FollowingList[fID] = name
 }
 
 /*
