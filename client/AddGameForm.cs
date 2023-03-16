@@ -19,12 +19,6 @@ namespace client
             this.home = home;
         }
 
-        private void buttonCancel_Click(object sender, EventArgs e)
-        {
-            Client.AbortAddOp();
-            this.Close();
-        }
-
         private void buttonSearch_Click(object sender, EventArgs e)
         {
             if (textBoxGame.Text.Length == 0)
@@ -34,16 +28,24 @@ namespace client
             }
 
             var games = Client.SearchGame(textBoxGame.Text);
-            if (games != null)
+            if (games.Length > 0)
             {
                 listBoxGames.Items.AddRange(games);
-                buttonAdd.Enabled= true;
-                buttonCancel.Enabled= true;
+                textBoxGame.Clear();
+                this.Size = MaximumSize;
+                panel2.BringToFront();
 
             }
             else
                 MessageBox.Show("Non è stato trovato nessun gioco");
         }
+        private void buttonCancel_Click(object sender, EventArgs e)
+        {
+            this.Size = MinimumSize;
+            panel1.BringToFront();
+            listBoxGames.Items.Clear();
+        }
+
 
         private void buttonAdd_Click(object sender, EventArgs e)
         {
@@ -53,8 +55,8 @@ namespace client
                 {
                     MessageBox.Show("Gioco aggiunto");
                     
-                    home.listBoxGames.Items.Add(listBoxGames.SelectedItem.ToString());
-                    home.listBoxGames.Refresh();
+                    //home.listBoxGames.Items.Add(listBoxGames.SelectedItem.ToString());
+                    //home.listBoxGames.Refresh();
                     this.Close();
                 }
                 else
@@ -66,6 +68,11 @@ namespace client
             }
             else
                 MessageBox.Show("Seleziona un gioco dalla lista");
+        }
+
+        private void AddGameForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Client.AbortAddOp();
         }
     }
 }

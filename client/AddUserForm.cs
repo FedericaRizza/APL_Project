@@ -17,6 +17,8 @@ namespace client
         {
             InitializeComponent();
             this.home = home;
+            
+            listBoxGames.Items.AddRange(Client.utente.GameList.ToArray<String>());
         }
 
         private void buttonCancel_Click(object sender, EventArgs e)
@@ -29,10 +31,13 @@ namespace client
             if (listBoxGames.SelectedItem != null)
             {
                 var users = Client.SearchUser(listBoxGames.SelectedItem.ToString());
-                if (users != null)
+                if (users.Length > 0)
                 {
+                    listBoxUser.Items.Clear();
                     listBoxUser.Items.AddRange(users);
                     panel2.BringToFront();
+                    listBoxGames.ClearSelected(); //clear selected item
+                    
 
                 }
                 else
@@ -44,20 +49,21 @@ namespace client
 
         private void buttonBack_Click(object sender, EventArgs e)
         {
+            listBoxUser.ClearSelected();
             panel1.BringToFront();
             Client.AbortAddOp();
         }
 
         private void buttonAdd_Click(object sender, EventArgs e)
         {
-            if (listBoxGames.SelectedItem != null)
+            if (listBoxUser.SelectedItem != null)
             {
-                if (Client.FollowUser(listBoxGames.SelectedItem.ToString()))
+                if (Client.FollowUser(listBoxUser.SelectedItem.ToString()))
                 {
                     MessageBox.Show("Utente seguito");
                     
-                    home.listBoxFollowing.Items.Add(listBoxGames.SelectedItem.ToString());
-                    home.listBoxFollowing.Refresh();
+                    //home.listBoxFollowing.Items.Add(listBoxGames.SelectedItem.ToString());
+                    //home.listBoxFollowing.Refresh();
                     this.Close();
                 }
                 else
@@ -69,6 +75,11 @@ namespace client
             }
             else
                 MessageBox.Show("Seleziona un utente dalla lista");
+        }
+
+        private void AddUserForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Client.AbortAddOp();
         }
     }
 }

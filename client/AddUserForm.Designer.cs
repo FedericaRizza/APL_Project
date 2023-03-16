@@ -62,7 +62,7 @@
             this.label1.Font = new System.Drawing.Font("Segoe UI", 10.125F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.label1.Location = new System.Drawing.Point(68, 70);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(432, 37);
+            this.label1.Size = new System.Drawing.Size(438, 37);
             this.label1.TabIndex = 1;
             this.label1.Text = "Per quale gioco vuoi cercare utenti?";
             // 
@@ -88,7 +88,6 @@
             // 
             // panel1
             // 
-            this.panel1.Controls.Add(this.panel2);
             this.panel1.Controls.Add(this.buttonCancel);
             this.panel1.Controls.Add(this.buttonSearch);
             this.panel1.Controls.Add(this.label1);
@@ -97,7 +96,7 @@
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(571, 745);
-            this.panel1.TabIndex = 4;
+            this.panel1.TabIndex = 5;
             // 
             // panel2
             // 
@@ -109,7 +108,7 @@
             this.panel2.Location = new System.Drawing.Point(0, 0);
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(571, 745);
-            this.panel2.TabIndex = 5;
+            this.panel2.TabIndex = 4;
             // 
             // buttonBack
             // 
@@ -161,10 +160,12 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(571, 745);
             this.Controls.Add(this.panel1);
+            this.Controls.Add(this.panel2);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "AddUserForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Aggiungi utente";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.AddUserForm_FormClosing);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.panel2.ResumeLayout(false);
