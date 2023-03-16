@@ -105,19 +105,22 @@ func login(nick string, psw string, u *user) bool {
 	for rows.Next() {
 		var gioco string
 		rows.Scan(&gioco)
-		u.GameList = append(u.GameList, gioco) //append restituisce un nuovo slice contenente gli elementi aggiunti
+		u.setGameList(gioco)
+		//u.GameList = append(u.GameList, gioco) //append restituisce un nuovo slice contenente gli elementi aggiunti
 	}
 
-	//restituisco la lista dei seguiti
-	rows1, er1 := db.Query("SELECT u2.nickname FROM seguiti JOIN utenti u1 ON utente = u1.id_utente JOIN utenti u2 ON seguito = u2.id_utente WHERE u1.nickname = ?", nick)
+	//restituisco la mappa dei seguiti
+	rows1, er1 := db.Query("SELECT u2.id_utente, u2.nickname FROM seguiti JOIN utenti u1 ON utente = u1.id_utente JOIN utenti u2 ON seguito = u2.id_utente WHERE u1.nickname = ?", nick)
 	if er1 != nil {
 		return false
 	}
 
 	for rows1.Next() {
-		var amico string
-		rows1.Scan(&amico)
-		u.FollowingList = append(u.FollowingList, amico) //append restituisce un nuovo slice contenente gli elementi aggiunti
+		var id int
+		var seguito string
+		rows1.Scan(&id,&seguito)
+		u.setFollowingList(id, seguito)
+		//u.FollowingList = append(u.FollowingList, amico) //append restituisce un nuovo slice contenente gli elementi aggiunti
 	}
 
 	//prove stampe
@@ -147,11 +150,17 @@ func addGame(gameName string, userID int) bool {
 
 	defer db.Close()
 
-	//inserisco il gioco nella tabella giochi
-	_, err = db.Exec("INSERT INTO giochi (nome) VALUES (?)", gameName) //passo psw_hash come array di byte
-	if err != nil {
-		return false
+	//controllo se il gioco è già presente nella tabella giochi
+	var count int
+	err = db.QueryRow("SELECT COUNT(*) FROM giochi WHERE nome = ?", gameName).Scan(&count)
+	if count == 0 {
+		//inserisco il gioco nella tabella giochi
+		_, err = db.Exec("INSERT INTO giochi (nome) VALUES (?)", gameName) //passo psw_hash come array di byte
+		if err != nil {
+			return false
+		}
 	}
+	
 
 	//inserisco anche nella tabella utente_giochi selezionando prima l'id del gioco
 	var id_gioco int
@@ -213,8 +222,10 @@ func followUser(userID int, follwingID int) bool {
 
 	_, err = db.Exec("INSERT INTO seguiti (utente, seguito) VALUES (?,?)", userID, follwingID) //passo psw_hash come array di byte
 	if err != nil {
+		fmt.Println ("dentro insert following")
 		return false
 	}
+	fmt.Println("la query torna true")
 	return true
 
 }
