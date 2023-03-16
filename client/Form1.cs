@@ -2,17 +2,17 @@ namespace client
 {
     public partial class RegForm : Form
     {
-        public RegForm()
+        private LogForm login;
+        public RegForm(LogForm log)
         {
             InitializeComponent();
+            login = log;
         }
 
         private void buttonLog_Click(object sender, EventArgs e)
         {
             this.Hide();
-            LogForm login = new LogForm(this);
             login.Show();
-
         }
 
         private void buttonRegister_Click(object sender, EventArgs e)
@@ -40,9 +40,8 @@ namespace client
                 if (Client.SendRegister(textBoxNick.Text, textBoxPsw.Text))
                 { 
                     MessageBox.Show("Account creato correttamente.");
-                    this.Hide();
-                    LogForm log = new LogForm(this);
-                    log.Show();                    
+                    this.Hide();                    
+                    login.Show();                    
                 }
                     
                     

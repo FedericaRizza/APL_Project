@@ -174,11 +174,10 @@
             this.labelUser.Dock = System.Windows.Forms.DockStyle.Right;
             this.labelUser.Font = new System.Drawing.Font("Segoe UI Semibold", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.labelUser.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.labelUser.Location = new System.Drawing.Point(200, 5);
+            this.labelUser.Location = new System.Drawing.Point(301, 5);
             this.labelUser.Name = "labelUser";
-            this.labelUser.Size = new System.Drawing.Size(101, 45);
+            this.labelUser.Size = new System.Drawing.Size(0, 45);
             this.labelUser.TabIndex = 0;
-            this.labelUser.Text = "Ciao, ";
             this.labelUser.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.labelUser.MouseHover += new System.EventHandler(this.labelUser_MouseHover);
             // 
@@ -192,6 +191,7 @@
             this.Controls.Add(this.panel1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "HomeForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Game Project";
             this.panel1.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);
@@ -213,7 +213,7 @@
         private TableLayoutPanel tableLayoutPanel1;
         private Label label1;
         private Label label2;
-        public ListBox listBoxGames;
-        public ListBox listBoxFollowing;
+        private ListBox listBoxGames;
+        private ListBox listBoxFollowing;
     }
 }

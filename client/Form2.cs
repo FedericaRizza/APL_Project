@@ -8,23 +8,30 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+
 namespace client
 {
     public partial class LogForm : Form
     {
         private RegForm register;
-        public LogForm(RegForm reg)
+        
+        public LogForm()
         {
             InitializeComponent();
-            register = reg;
-
+            register= new RegForm(this);
+            
         }
 
         private void buttonRegister_Click(object sender, EventArgs e)
         {
-            this.Close();
-            //RegForm register= new RegForm();
+            this.Hide();
+            register.FormClosing += Register_FormClosing;
             register.Show();
+        }
+
+        private void Register_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            this.Close();
         }
 
         private void buttonLog_Click(object sender, EventArgs e)
@@ -43,16 +50,25 @@ namespace client
 
             if (Client.SendLogin(textBoxNick.Text, textBoxPsw.Text))
             {
-                HomeForm home = new HomeForm();
+                HomeForm home = new HomeForm(this);
                 home.Show();
-                this.Close();
+                textBoxNick.Clear();
+                textBoxPsw.Clear();
+                this.Hide();
             }
             else
             {
                 MessageBox.Show("Nickname o password errati, riprovare!");
+                textBoxNick.Clear();
+                textBoxPsw.Clear();
                 return;
             }
             
+        }
+
+        private void LogForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Client.Exit();
         }
     }
 }

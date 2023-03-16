@@ -71,7 +71,7 @@
             this.buttonLog.Location = new System.Drawing.Point(210, 541);
             this.buttonLog.Name = "buttonLog";
             this.buttonLog.Size = new System.Drawing.Size(150, 60);
-            this.buttonLog.TabIndex = 3;
+            this.buttonLog.TabIndex = 4;
             this.buttonLog.Text = "Log In";
             this.buttonLog.UseVisualStyleBackColor = true;
             this.buttonLog.Click += new System.EventHandler(this.buttonLog_Click);
@@ -81,7 +81,7 @@
             this.buttonRegister.Location = new System.Drawing.Point(134, 621);
             this.buttonRegister.Name = "buttonRegister";
             this.buttonRegister.Size = new System.Drawing.Size(300, 60);
-            this.buttonRegister.TabIndex = 4;
+            this.buttonRegister.TabIndex = 5;
             this.buttonRegister.Text = "Nuovo Utente? Registrati";
             this.buttonRegister.UseVisualStyleBackColor = true;
             this.buttonRegister.Click += new System.EventHandler(this.buttonRegister_Click);
@@ -93,6 +93,7 @@
             this.textBoxNick.Name = "textBoxNick";
             this.textBoxNick.Size = new System.Drawing.Size(325, 32);
             this.textBoxNick.TabIndex = 0;
+            this.textBoxNick.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // textBoxPsw
             // 
@@ -101,7 +102,8 @@
             this.textBoxPsw.Name = "textBoxPsw";
             this.textBoxPsw.PasswordChar = '*';
             this.textBoxPsw.Size = new System.Drawing.Size(325, 32);
-            this.textBoxPsw.TabIndex = 5;
+            this.textBoxPsw.TabIndex = 3;
+            this.textBoxPsw.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // LogForm
             // 
@@ -120,6 +122,7 @@
             this.Name = "LogForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Log In";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.LogForm_FormClosing);
             this.ResumeLayout(false);
             this.PerformLayout();
 
