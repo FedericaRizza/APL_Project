@@ -136,6 +136,53 @@ func login(nick string, psw string, u *user) bool {
 
 }
 
+func getInfoUtente(userID int, u *user) bool {
+
+	db, err := connectDB()
+
+	if err != nil {
+		return false
+	}
+
+	defer db.Close()
+
+	//controllo che nickname e password siano presenti nel DB
+	e := db.QueryRow("SELECT id_utente, nickname FROM utenti WHERE id_utente = ? AND pass = ?", userID).Scan(&u.UserID, &u.Nick) //qua lo modifico quindi &
+	if e != nil {
+		//ovviamente se entra qui basta per non poter fare il login
+		return false
+	}
+
+	//restituisco la lista dei giochi
+	rows, er := db.Query("SELECT nome FROM giochi JOIN utente_giochi ug ON id_gioco = ug.gioco JOIN utenti u ON u.id_utente = ug.utente WHERE u.id_utente = ?", u.Nick)
+	if er != nil {
+		return false
+	}
+
+	for rows.Next() {
+		var gioco string
+		rows.Scan(&gioco)
+		u.GameList = append(u.GameList, gioco) //append restituisce un nuovo slice contenente gli elementi aggiunti
+	}
+
+	//restituisco la lista dei seguiti
+
+	rows1, er1 := db.Query("SELECT u2.id_utente, u2.nickname FROM seguiti JOIN utenti u1 ON utente = u1.id_utente JOIN utenti u2 ON seguito = u2.id_utente WHERE u1.nickname = ?", u.Nick)
+	if er1 != nil {
+		return false
+	}
+
+	for rows1.Next() {
+		var id int
+		var seguito string
+		rows1.Scan(&id, &seguito)
+		u.setFollowingList(id, seguito)
+	}
+
+	return true
+
+}
+
 // FUNZIONE AGGIUNGI GIOCO --------------------------------------------------------------
 func addGame(gameName string, userID int) bool {
 

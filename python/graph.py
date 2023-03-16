@@ -17,10 +17,10 @@ client_socket.connect((SERVER_IP, SERVER_PORT))
 
 
 # FUNZIONE: costruzione logica del grafo
-def grafo_utenti(): 
+def grafo_utenti(id_utente): 
 
     
-    message_utenti = "PYUTENTI "
+    message_utenti = "PYUTENTI\n" + str(id_utente) + "\n"
 
     #AGGIUNGO IL NODO DELL'UTENTE LOGGATO------------------------------------------------------------
     client_socket.send(message_utenti.encode())
@@ -57,12 +57,13 @@ def grafo_utenti():
 
 def mostra_grafo(id_utente, nickname):
     
-    message = "PYPESO "
+    message = "PYPESO\n"
     client_socket.send(message.encode())
     response = client_socket.recv(1024).decode()
     print(response)
     print("ei")
     dictConversazioni = json.loads(response)
+    #TODO controllo *   
     
     
     #costruzione di un oggetto di tipo go.Figure() per creare il grafico con plotly
@@ -75,7 +76,7 @@ def mostra_grafo(id_utente, nickname):
         #genero x, y casuale in modo da mettere i nodi sparsi nel disegno (altrimenti l'unico modo sarebbe na retta) 
         x_coordinata = random.uniform(0,30)
         y_coordinata = random.uniform(0,30)
-        dictCoordinate[nodo.id] = (x_coordinata, y_coordinata) #per ogni nodo mi conservo le coordinate
+        dictCoordinate[nodo.id] = (x_coordinata, y_coordinata) #dizionario id-coppie(tupla)
 
 
         fig.add_trace(go.Scatter(x =[x_coordinata], y= [y_coordinata], mode='markers', marker=dict(symbol='circle', size=50), name=nodo.nickname))

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/Henry-Sarabia/igdb/v2"
@@ -162,16 +163,10 @@ func handleClient(conn net.Conn) {
 			}
 			conn.Write(buffer)
 
-		case "PYTHON ": //mi legge fino a python e anche lo spazio
-			var prova, _ = reader.ReadString('\n') //e poi una volta entrato legge tutto fino a capo
-			fmt.Println(prova)
-			buffer = []byte("ciao")
-			conn.Write(buffer)
-
 		//prima lettura avviene prima dello switch
-		case "PYUTENTI ":
+		case "PYUTENTI":
 
-			type user1 struct {
+			/*type user1 struct {
 				UserID        int            `json:"UserID"`
 				Nick          string         `json:"Nick"`
 				GameList      []string       `json:"GameList"`
@@ -188,12 +183,19 @@ func handleClient(conn net.Conn) {
 			u.FollowingList[2] = "gio"
 			u.FollowingList[3] = "mattia"
 
-			fmt.Println(u)
+			fmt.Println(u)*/
 
-			infoUtente, _ := json.Marshal(u)
-			conn.Write(infoUtente)
+			id_utente, _ := reader.ReadString('\n')
 
-			//reader.ReadByte()
+			id, _ := strconv.Atoi(id_utente)
+			done := getInfoUtente(id, &utente)
+
+			if done {
+				infoUtente, _ := json.Marshal(utente)
+				conn.Write(infoUtente)
+			} else {
+				conn.Write([]byte("*"))
+			}
 
 			//conn.Write([]byte(utente.Nick))
 
@@ -232,7 +234,7 @@ func handleClient(conn net.Conn) {
 				conn.Write([]byte("*"))
 			}
 
-		case "PYPESO ":
+		case "PYPESO":
 			fmt.Println("sono qui")
 			structConversazione, done := getConversazione()
 			fmt.Println(structConversazione)

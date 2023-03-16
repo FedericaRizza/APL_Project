@@ -34,7 +34,7 @@ class Grafo:
         nodo_sorgente = str(nodo_sorgente)
         nodo_destinazione = str(nodo_destinazione)
     
-        if nodo_sorgente not in [id for id in self.dictNodi]:
+        if nodo_sorgente not in [id for id in self.dictNodi]: #TODO 
             raise ValueError ("il nodo sorgente non esiste all'interno del grafo!")
         if nodo_destinazione not in [nodo.id for nodo in self.dictNodi.values()]:
             raise ValueError ("il nodo di destinazione non esiste all'interno del grafo!")
