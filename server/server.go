@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/Henry-Sarabia/igdb/v2"
@@ -39,6 +40,7 @@ func main() {
 
 	for {
 
+		fmt.Println("Routine principale in attesa di nuovi client")
 		connection, err := server.Accept()
 		if err != nil {
 			fmt.Println("Errore di connessione")
@@ -48,6 +50,7 @@ func main() {
 		go handleClient(connection)
 		
 	}
+	fmt.Println("Processo principale in chiusura, oh no!")
 }
 
 // chiamata ogni volta che un client si connette al server
@@ -58,20 +61,25 @@ func handleClient(conn net.Conn) {
 	var utente user
 	
 	buffer:= make([]byte,1024)
+	var reader = bufio.NewReader(conn)
 	
 	for {
 		//cicla continuamente finchè il clienti rimane connesso
 		//fmt.Println("Attesa del client...")
 
 		//legge il messaggio del client
-		request,_:=bufio.NewReader(conn).ReadString(' ')//provare readline
+		//request,_:=bufio.NewReader(conn).ReadString(' ')//provare readline
+		request,_:= reader.ReadString('\n')
+		fmt.Println(request)
+		request = strings.ReplaceAll(request, "\n", "")
 		//switch per gestire le varie richieste del client
 		switch request { 
-		case "REGISTER ":
-			usr,_:=bufio.NewReader(conn).ReadString(' ')
+		case "REGISTER":
+			usr,_:=reader.ReadString(' ')
 			usr = strings.ReplaceAll(usr, " ", "") //per togliere lo spazio dopo il nome
-			psw,_:=bufio.NewReader(conn).ReadString('\n')
+			psw,_:=reader.ReadString('\n')
 			psw = strings.ReplaceAll(psw, "\n", "")
+			fmt.Println("sono in register, password: ",psw)
 			done:= register(usr,psw) 
 			if done {
 				buffer=[]byte("1")
@@ -80,42 +88,59 @@ func handleClient(conn net.Conn) {
 				}
 			conn.Write(buffer) //gestire err?
 
-		case "LOGIN ":
-			usr,_:=bufio.NewReader(conn).ReadString(' ')
+		case "LOGIN":
+			usr,_:=reader.ReadString(' ')
 			usr = strings.ReplaceAll(usr, " ", "")
-			psw,_:=bufio.NewReader(conn).ReadString('\n')
+			
+			psw,_:=reader.ReadString('\n')
 			psw = strings.ReplaceAll(psw, "\n", "")
 
+			//svuoto utente per ogni login utente
+			utente = newUser()
+			//qui si deve salvare nella mappa utenti-connessioni i dati relativi al client che si collega
 			done:=login(usr,psw,&utente)
 			if done {
 				buffer=[]byte("1")
-				conn.Write(buffer) //devo mandare i dati utente anche al client? SI
+				conn.Write(buffer)
+				//invio i dati utente al client sotto forma di json
 				jsonUtente,_ := json.Marshal(utente)
 				conn.Write(jsonUtente)
 				} else {
 					buffer=[]byte("0")
 					conn.Write(buffer)
 				}
-			//encoder:= json.NewEncoder(conn)
-			//encoder.Encode(utente)
 
-		case "ADDGAME ":
-			name,_:=bufio.NewReader(conn).ReadString('\n')
+		case "ADDGAME":
+			fmt.Println("Sono in addgame")
+			name,_:=reader.ReadString('\n')
+			fmt.Println(name)
 			name = strings.ReplaceAll(name, "\n", "")
+			fmt.Println("cerco il gioco con: ",name)
 			//ricerca gioco tramite igdb API
 			igdbClient:= igdb.NewClient(id, token, nil)
-			gameList,err:= igdbClient.Search(name, igdb.SetLimit(30), igdb.SetFields("name"))
+			gameList,_:= igdbClient.Search(name, igdb.SetLimit(30), igdb.SetFields("name")) //rimettere err
 			for _,v:= range gameList {
+				fmt.Println("trovato: ",v.Name)
 				buffer = []byte(v.Name)
 				conn.Write(buffer)
+				reader.ReadByte()
+				
 			}
 			conn.Write([]byte("*")) //indica la fine della lista giochi
 
-			gameName,_:=bufio.NewReader(conn).ReadString('\n')
+			gameName,_:=reader.ReadString('\n')
+			fmt.Println("leggo il nome gioco: ", gameName)
 			gameName = strings.ReplaceAll(gameName, "\n", "")
-			if gameName=="ABORT" {
+			//se anzichè inserire il gioco faccio annulla, arriva il comando di ABORT
+			if gameName == "ABORT" {
 				break
 			}
+			fmt.Println("dopo il break abort ",gameName)
+			//se anzichè inserire un gioco faccio una nuova ricerca??? ---> modificare il form con due panel
+			if gameName == "ADDGAME" {
+				//goto label?
+			}
+			fmt.Println("dopo Addname ", gameName)
 			//se salva correttamente nel db lo aggiunge in gameList di utente
 			done:= addGame(gameName, utente.UserID) 
 			if done {
@@ -126,42 +151,76 @@ func handleClient(conn net.Conn) {
 			}
 			conn.Write(buffer)
 
-		case "FOLLOW ":
-			gameName,_:=bufio.NewReader(conn).ReadString('\n')
+		case "FOLLOW":
+			fmt.Println("sono in follow")
+			gameName,_:=reader.ReadString('\n')
 			gameName = strings.ReplaceAll(gameName, "\n", "")
-			userMap,err:= findUser(gameName)
-			//decidere se fare mutua amicizia con richiesta o solo il segui
-			delete(userMap, utente.UserID)			
+			fmt.Println("gioco ", gameName)
+			userMap,_:= findUser(gameName) //rimettere err
+			//tolgo dalla mappa utenti che hanno il gioco l'utente relativo al client e i suoi seguiti
+			delete(userMap, utente.UserID)	
+			for userId:= range utente.FollowingList {
+				delete(userMap, userId)
+			}		
 			//invia lista utenti
 			for _,uName:= range userMap {
+				fmt.Println("dentro map ", uName)
 				buffer = []byte(uName)
 				conn.Write(buffer)
+				reader.ReadByte()
 			}
 			conn.Write([]byte("*"))
 			
 			//riceve nick dell'utente da aggiungere
-			userName,_:= bufio.NewReader(conn).ReadString('\n')
-			userName = strings.ReplaceAll(userName, "\n", "")
-			if userName=="ABORT" {
+			followingName,_:= reader.ReadString('\n')
+			fmt.Println("--",followingName,"--")
+			followingName = strings.ReplaceAll(followingName, "\n", "")
+			fmt.Println("nick dell utente--",followingName,"--")
+			if followingName=="ABORT" {
+				fmt.Println("dentro abort")
 				break
 			}
+			fmt.Println("fuori abort")
 			var done bool
+			var followingID int
+			//for sbagliato, in userName c è il nome del gioco, controllare
 			for uID:= range userMap {
-				if userMap[uID]==userName {
+				fmt.Println("dentro ricerca mappa")
+				fmt.Println(uID, userMap[uID])
+				if userMap[uID]==followingName {
+					fmt.Println("utente trovato, lo aggiungo")
 					done = followUser(utente.UserID, uID)
-					return
+					fmt.Println(done)
+					followingID = uID
+					break
 				}
 			}
+			fmt.Println("prima di done")
+			
+			//se l'inserimento è andato a buon fine torno l'id del following
 			if done {
-				utente.setFollowingList(userName)
-				buffer=[]byte("1")
+				utente.setFollowingList(followingID,followingName)
+				fmt.Println("done si")
+				buffer=[]byte(strconv.Itoa(followingID))
 			} else {
-				buffer=[]byte("0")
+				fmt.Println("done no")
+				buffer=[]byte("error")
 			}
+			fmt.Println("prima di write")
 			conn.Write(buffer)
+			fmt.Println("dopo write")
+		
+		case "ABORT":
+			fmt.Println("operazione abort")
 
+		case "CLOSE":
+			//cancellare la connessione dalla mappa
+			fmt.Println("Dissconnessione del client in corso...")
+			conn.Close()
+			return
 		default:
-			fmt.Println(request)
+			continue
+			
 
 		}
 
