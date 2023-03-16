@@ -331,6 +331,42 @@ func allRelation(userID int) ([]Relation, bool) {
 
 }
 
+type Conversazione struct {
+	Nmessaggi      int `json:"Nmessaggi"`
+	IDmittente     int `json:"IDmittente"`
+	IDdestinatario int `json:"IDdestinatario"`
+}
+
+func getConversazione() ([]Conversazione, bool) {
+	db, err := connectDB()
+
+	if err != nil {
+		return nil, false
+	}
+
+	defer db.Close()
+
+	rows, err := db.Query("SELECT COUNT(*) AS num_messaggi, m.mittente, m.destinatario FROM conversazioni c JOIN messaggi m ON c.id_conversazione = m.conversazione GROUP BY  m.mittente, m.destinatario, c.id_conversazione")
+
+	if err != nil {
+		return nil, false
+	}
+
+	conversazioni := []Conversazione{} //creo uno slice vuoto
+
+	for rows.Next() {
+		var conversazione Conversazione
+		e := rows.Scan(&conversazione.Nmessaggi, &conversazione.IDmittente, &conversazione.IDdestinatario)
+		if e != nil {
+			return nil, false
+		}
+		conversazioni = append(conversazioni, conversazione)
+	}
+
+	return conversazioni, true
+
+}
+
 /*func main() {
 
 	//done := register("giorgia", "prova")

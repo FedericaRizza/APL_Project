@@ -206,7 +206,6 @@ func handleClient(conn net.Conn) {
 					conn.Write([]byte("*")) //----> cliente: response controllo se ricevo l'asterisco
 				}*/
 
-			print("sono prima della seconda reader")
 			//perchè la write non è bloccante e quindi non aspetta prima di riscrevere questa cosa
 
 			reader.ReadByte()
@@ -229,6 +228,19 @@ func handleClient(conn net.Conn) {
 			if done {
 				jsonSeguiti2Py, _ := json.Marshal(relazioni)
 				conn.Write(jsonSeguiti2Py)
+			} else {
+				conn.Write([]byte("*"))
+			}
+
+		case "PYPESO ":
+			fmt.Println("sono qui")
+			structConversazione, done := getConversazione()
+			fmt.Println(structConversazione)
+			fmt.Println("sono qui2")
+
+			if done {
+				jsonConversazione, _ := json.Marshal(structConversazione)
+				conn.Write(jsonConversazione)
 			} else {
 				conn.Write([]byte("*"))
 			}
