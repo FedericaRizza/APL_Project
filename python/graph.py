@@ -122,13 +122,13 @@ def mostra_grafo(id_utente):
                         fig.add_annotation(
                         x=nodoArrivo_x, y=nodoArrivo_y, ax=nodoPartenza_x, ay=nodoPartenza_y,
                         xref='x', yref='y', axref='x', ayref='y',
-                        showarrow=True, arrowhead=5, arrowsize=1, arrowwidth=3, arrowcolor = 'black' 
+                        showarrow=True, arrowhead=5, arrowsize=1, arrowwidth=3, arrowcolor = 'black',
                         )
                     elif int(nodo.id) == conversazione['IDmittente'] and int(connessione.arrivo) == conversazione['IDdestinatario'] and conversazione['Nmessaggi'] >=10:
                         fig.add_annotation(
                         x=nodoArrivo_x, y=nodoArrivo_y, ax=nodoPartenza_x, ay=nodoPartenza_y,
                         xref='x', yref='y', axref='x', ayref='y',
-                        showarrow=True, arrowhead=5, arrowsize=1, arrowwidth=4, arrowcolor = 'black' 
+                        showarrow=True, arrowhead=5, arrowsize=1, arrowwidth=5, arrowcolor = 'black',
                         )
                     elif int(nodo.id) == conversazione['IDmittente'] and int(connessione.arrivo) == conversazione['IDdestinatario'] and conversazione['Nmessaggi'] < 5:
                         fig.add_annotation(

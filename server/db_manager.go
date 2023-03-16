@@ -352,7 +352,7 @@ func getConversazione() ([]Conversazione, bool) {
 		return nil, false
 	}
 
-	conversazioni := []Conversazione{} //creo uno slice vuoto
+	conversazioni := []Conversazione{}
 
 	for rows.Next() {
 		var conversazione Conversazione
