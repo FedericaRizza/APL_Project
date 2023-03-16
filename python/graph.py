@@ -55,7 +55,7 @@ def grafo_utenti():
             grafo.aggiungi_connessione(seguito1, seguito2) #e aggiungo l'arco
 
 
-def mostra_grafo(id_utente):
+def mostra_grafo(id_utente, nickname):
     
     message = "PYPESO "
     client_socket.send(message.encode())
@@ -145,21 +145,18 @@ def mostra_grafo(id_utente):
 
             
     
-    fig.update_layout(title='Grafo dei seguiti')
+    fig.update_layout(title='Grafo dei seguiti di ' + nickname + ' pesato in base alle conversazioni')
 
     # Visualizzazione del grafo
     fig.show()
     
     
 
-def main():
-    grafo_utenti()
-    mostra_grafo(1)
-
 
 
 if __name__ == "__main__":
-    main()
+    grafo_utenti()
+    mostra_grafo(1, "fede")
     
 
 
