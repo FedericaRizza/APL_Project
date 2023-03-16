@@ -8,8 +8,8 @@ type user struct {
 	FollowingList map[int]string `json:"FollowingList"`
 }
 
-func newUser() *user {
-	u := &user{GameList : make([]string,0), FollowingList : make(map[int]string)}
+func newUser() user {
+	u := user{GameList : make([]string,0), FollowingList : make(map[int]string)}
 	return u
 }
 
