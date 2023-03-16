@@ -14,10 +14,11 @@ import (
 const (
 	ServerType = "tcp"
 	ServerPort = ":8000"
-	id = "79qp0roupexv53hnpss3x1wwdytgq5"
-	token = "b1sz8clgm6864g2d0kl5kc4uoz0l0r"
+	id         = "79qp0roupexv53hnpss3x1wwdytgq5"
+	token      = "b1sz8clgm6864g2d0kl5kc4uoz0l0r"
 )
-//serve una map dove salvare client-connessione, (lista giochi e utenti?)
+
+// serve una map dove salvare client-connessione, (lista giochi e utenti?)
 var clients = make(map[int]net.Conn)
 
 func main() {
@@ -44,9 +45,9 @@ func main() {
 			fmt.Println("Errore di connessione")
 			return
 		}
-		
+
 		go handleClient(connection)
-		
+
 	}
 }
 
@@ -56,112 +57,184 @@ func handleClient(conn net.Conn) {
 	//appena il client termina la comunicazione, la connesione viene chiusa
 
 	var utente user
-	
-	buffer:= make([]byte,1024)
-	
+
+	buffer := make([]byte, 1024)
+	var reader = bufio.NewReader(conn)
+
 	for {
 		//cicla continuamente finchè il clienti rimane connesso
 		//fmt.Println("Attesa del client...")
 
 		//legge il messaggio del client
-		request,_:=bufio.NewReader(conn).ReadString(' ')//provare readline
+		request, _ := reader.ReadString(' ') //provare readline
 		//switch per gestire le varie richieste del client
-		switch request { 
+		switch request {
 		case "REGISTER ":
-			usr,_:=bufio.NewReader(conn).ReadString(' ')
+			usr, _ := bufio.NewReader(conn).ReadString(' ')
 			usr = strings.ReplaceAll(usr, " ", "") //per togliere lo spazio dopo il nome
-			psw,_:=bufio.NewReader(conn).ReadString('\n')
+			psw, _ := bufio.NewReader(conn).ReadString('\n')
 			psw = strings.ReplaceAll(psw, "\n", "")
-			done:= register(usr,psw) 
+			done := register(usr, psw)
 			if done {
-				buffer=[]byte("1")
-				} else {
-					buffer=[]byte("0")
-				}
+				buffer = []byte("1")
+			} else {
+				buffer = []byte("0")
+			}
 			conn.Write(buffer) //gestire err?
 
 		case "LOGIN ":
-			usr,_:=bufio.NewReader(conn).ReadString(' ')
+			usr, _ := bufio.NewReader(conn).ReadString(' ')
 			usr = strings.ReplaceAll(usr, " ", "")
-			psw,_:=bufio.NewReader(conn).ReadString('\n')
+			psw, _ := bufio.NewReader(conn).ReadString('\n')
 			psw = strings.ReplaceAll(psw, "\n", "")
 
-			done:=login(usr,psw,&utente)
+			done := login(usr, psw, &utente)
 			if done {
-				buffer=[]byte("1")
+				buffer = []byte("1")
 				conn.Write(buffer) //devo mandare i dati utente anche al client? SI
-				jsonUtente,_ := json.Marshal(utente)
+				jsonUtente, _ := json.Marshal(utente)
 				conn.Write(jsonUtente)
-				} else {
-					buffer=[]byte("0")
-					conn.Write(buffer)
-				}
+			} else {
+				buffer = []byte("0")
+				conn.Write(buffer)
+			}
 			//encoder:= json.NewEncoder(conn)
 			//encoder.Encode(utente)
 
 		case "ADDGAME ":
-			name,_:=bufio.NewReader(conn).ReadString('\n')
+			name, _ := bufio.NewReader(conn).ReadString('\n')
 			name = strings.ReplaceAll(name, "\n", "")
 			//ricerca gioco tramite igdb API
-			igdbClient:= igdb.NewClient(id, token, nil)
-			gameList,err:= igdbClient.Search(name, igdb.SetLimit(30), igdb.SetFields("name"))
-			for _,v:= range gameList {
+			igdbClient := igdb.NewClient(id, token, nil)
+			gameList, _ := igdbClient.Search(name, igdb.SetLimit(30), igdb.SetFields("name"))
+			for _, v := range gameList {
 				buffer = []byte(v.Name)
 				conn.Write(buffer)
 			}
 			conn.Write([]byte("*")) //indica la fine della lista giochi
 
-			gameName,_:=bufio.NewReader(conn).ReadString('\n')
+			gameName, _ := bufio.NewReader(conn).ReadString('\n')
 			gameName = strings.ReplaceAll(gameName, "\n", "")
-			if gameName=="ABORT" {
+			if gameName == "ABORT" {
 				break
 			}
 			//se salva correttamente nel db lo aggiunge in gameList di utente
-			done:= addGame(gameName, utente.UserID) 
+			done := addGame(gameName, utente.UserID)
 			if done {
 				utente.setGameList(gameName)
-				buffer=[]byte("1")
+				buffer = []byte("1")
 			} else {
-				buffer=[]byte("0")
+				buffer = []byte("0")
 			}
 			conn.Write(buffer)
 
 		case "FOLLOW ":
-			gameName,_:=bufio.NewReader(conn).ReadString('\n')
+			gameName, _ := bufio.NewReader(conn).ReadString('\n')
 			gameName = strings.ReplaceAll(gameName, "\n", "")
-			userMap,err:= findUser(gameName)
+			userMap, _ := findUser(gameName)
 			//decidere se fare mutua amicizia con richiesta o solo il segui
-			delete(userMap, utente.UserID)			
+			delete(userMap, utente.UserID)
 			//invia lista utenti
-			for _,uName:= range userMap {
+			for _, uName := range userMap {
 				buffer = []byte(uName)
 				conn.Write(buffer)
 			}
 			conn.Write([]byte("*"))
-			
+
 			//riceve nick dell'utente da aggiungere
-			userName,_:= bufio.NewReader(conn).ReadString('\n')
+			userName, _ := bufio.NewReader(conn).ReadString('\n')
 			userName = strings.ReplaceAll(userName, "\n", "")
-			if userName=="ABORT" {
+			if userName == "ABORT" {
 				break
 			}
 			var done bool
-			for uID:= range userMap {
-				if userMap[uID]==userName {
+			for uID := range userMap {
+				if userMap[uID] == userName {
 					done = followUser(utente.UserID, uID)
 					return
 				}
 			}
 			if done {
 				utente.setFollowingList(userName)
-				buffer=[]byte("1")
+				buffer = []byte("1")
 			} else {
-				buffer=[]byte("0")
+				buffer = []byte("0")
 			}
 			conn.Write(buffer)
 
+		case "PYTHON ": //mi legge fino a python e anche lo spazio
+			var prova, _ = reader.ReadString('\n') //e poi una volta entrato legge tutto fino a capo
+			fmt.Println(prova)
+			buffer = []byte("ciao")
+			conn.Write(buffer)
+
+		//prima lettura avviene prima dello switch
+		case "PYUTENTI ":
+
+			type user1 struct {
+				UserID        int            `json:"UserID"`
+				Nick          string         `json:"Nick"`
+				GameList      []string       `json:"GameList"`
+				FollowingList map[int]string `json:"FollowingList"`
+			}
+
+			u := user1{
+				UserID:        1,
+				Nick:          "fede",
+				GameList:      []string{},
+				FollowingList: make(map[int]string),
+			}
+
+			u.FollowingList[2] = "gio"
+			u.FollowingList[3] = "mattia"
+
+			fmt.Println(u)
+
+			infoUtente, _ := json.Marshal(u)
+			conn.Write(infoUtente)
+
+			//reader.ReadByte()
+
+			//conn.Write([]byte(utente.Nick))
+
+			//PROVE
+			/*
+				if done {
+					jsonUtentiPy, _ := json.Marshal(utentiMap)
+					conn.Write(jsonUtentiPy)
+				} else {
+					conn.Write([]byte("*")) //----> cliente: response controllo se ricevo l'asterisco
+				}*/
+
+			print("sono prima della seconda reader")
+			//perchè la write non è bloccante e quindi non aspetta prima di riscrevere questa cosa
+
+			reader.ReadByte()
+
+			/*seguitiMap, done := allFollowing(utente.UserID)
+			if done {
+				jsonSeguitiPy, _ := json.Marshal(seguitiMap)
+				conn.Write([]byte(jsonSeguitiPy))
+			} else {
+				conn.Write([]byte("*"))
+			}
+
+			reader.ReadByte()*/
+
+			//QUI DOVREI MANDARE LA LISTA DI TUTTI I SEGUITI DELL'UTENTE LOGGATO
+
+			relazioni, done := allRelation(1)
+			fmt.Println(relazioni) //funziona
+
+			if done {
+				jsonSeguiti2Py, _ := json.Marshal(relazioni)
+				conn.Write(jsonSeguiti2Py)
+			} else {
+				conn.Write([]byte("*"))
+			}
+
 		default:
-			fmt.Println(request)
+			//fmt.Println(request)
 
 		}
 

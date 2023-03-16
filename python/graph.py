@@ -1,97 +1,143 @@
-import mysql.connector
-import networkx as nx
 import plotly.graph_objects as go
+import socket
+import json
+from buildgraph import Grafo
+import random
+
+grafo = Grafo()
 
 
-#connessione al db
-while True:
-    try:
-        db = mysql.connector.connect( 
-        host = "127.0.0.1",
-        user = "user",
-        password = "password",
-        database="SocialGames"
-        )
-        break
-    except Exception as sqlerr:
-        print("Errore: ", sqlerr)
+#connessione al server 
+SERVER_IP = "localhost"
+SERVER_PORT = 8000
 
-cursor = db.cursor()
-
-print("")
-
-#creo un nuovo oggetto grafo 
-graph = nx.DiGraph()
+#creo il socket tcp 
+client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client_socket.connect((SERVER_IP, SERVER_PORT))
 
 
-#aggiungo i nodi utenti al grafo
-try:
-    cursor.execute("SELECT id_utente, nickname FROM utenti")
-except Exception as sql_error:
-    print("E:", sql_error)
-for (id_utente, nickname) in cursor:
-    #add_node permette di aggiungere un nodo al grafo
-    #add_node si aspetta almeno un parametro ovvero l'identificativo del nome e in questo caso passiamo l'id_utente
-    #ed inoltre è possibile passare altri parametri sotto forma di dizionario, in questo caso nickname diventa un attributo del nodo a cui assegno il nick dell'utente
-    print("prova")
-    graph.add_node(id_utente, nickname=nickname)
+# FUNZIONE: costruzione logica del grafo
+def grafo_utenti(): 
+
+    
+    message_utenti = "PYUTENTI "
+
+    #AGGIUNGO IL NODO DELL'UTENTE LOGGATO------------------------------------------------------------
+    client_socket.send(message_utenti.encode())
+    response_utente = client_socket.recv(1024).decode()
+
+    #if response_utente != "*":
+    utente = json.loads(response_utente) #mi converta la stringa json in una lista di dizionari
+    #quando viene effettuata una decodifica di una stringa JSON in Python le chiavi vengono rappresentate come stringhe
+    print(utente)
+    grafo.aggiungi_nodo(str(utente['UserID']), nickname=utente['Nick'])#casting necessario per trasformare la chiave (che è una stringa) in un intero come si aspetta aggiungi_nodo
+    for id_seguito, nick_seguito in utente['FollowingList'].items():
+        grafo.aggiungi_nodo(id_seguito, nickname=nick_seguito)
+        grafo.aggiungi_connessione(str(utente['UserID']), id_seguito)
+
+    client_socket.send('-'.encode()) #per la sincronizzazione (perchè il server manda tutto, connessione a stream, cerco di bloccarmi sincronizzando lettura con scrittura)
+    
+    #message_seguiti = "PYSEGUITI "
+    #client_socket.send(message_seguiti.encode())
+
+    #AGGIUNGO NODI SEGUITI E CONNESSIONI---------------------
+    
+
+    response_seguiti = client_socket.recv(1024).decode('utf-8') #utf-8 per convertire una sequenza di byte in stringa
+    if response_seguiti != "*":
+        relazioni = json.loads(response_seguiti)
+        for relazione in relazioni:   #accedo ad ogni dizionario di relazioni
+            seguito1 = relazione['IDutente']
+            print(seguito1)
+            seguito2 = relazione['IDseguito']
+            print(seguito2)
+            print("sto aggiugengo gli archi rimanenti")
+            grafo.aggiungi_connessione(seguito1, seguito2) #e aggiungo l'arco
 
 
-#a questo punto ho bisogno di aggiungere gli archi al grafo
-#e per fare questo mi selezioni i seguiti e unisco i nodi sulla base di questo
-cursor.execute("SELECT utente, seguito FROM seguiti")
-for (utente, seguito) in cursor:
-    print("prova2")
-    graph.add_edge(utente,seguito)
+def mostra_grafo(id_utente):
+    
+    
+    
+    #costruzione di un oggetto di tipo go.Figure() per creare il grafico con plotly
+    fig = go.Figure()
+    dictCoordinate = {}
+    
+    
+    #AGGIUNGO TUTTI I NODI
+    for nodo in grafo.dictNodi.values(): 
+        #genero x, y casuale in modo da mettere i nodi sparsi nel disegno (altrimenti l'unico modo sarebbe na retta) 
+        x_coordinata = random.uniform(0,30)
+        y_coordinata = random.uniform(0,30)
+        dictCoordinate[nodo.id] = (x_coordinata, y_coordinata) #per ogni nodo mi conservo le coordinate
 
-cursor.close()
-db.close()
+
+        fig.add_trace(go.Scatter(x =[x_coordinata], y= [y_coordinata], mode='markers', marker=dict(symbol='circle', size=50), name=nodo.nickname))
+    
+
+    #AGGIUNGO TUTTI GLI ARCHI
+    for nodo in grafo.dictNodi.values():
+        for connessione in nodo.listConnessioni:
+        
+            #x mi rappresenta gli estremi dell'arco (id nodo partenza e id nodo arrivo) (VALORI NEGLI ASSI DELLE ORDINATE)
+            #y mi rappresenta nickname di nodo di partenza e destinazione (VALORI NEGLI ASSI DELLE ASCISSE)
+            #mode: modo con cui i punti del grafico vengono connessi, in questo modo con lines da linee rette
+            #nome: indiciato dalla direzione(usato come etichetta de)
+            #hoverinfo: 
+        #per tracciare la linea che unisce i nodi devo recuperare le coordinate e quindi 
 
 
-layout = go.Layout(title="Grafo delle relazioni tra gli utenti")
+            nodoPartenza_x, nodoPartenza_y = dictCoordinate[nodo.id]#prendo le coordinate del nodo di arrvivo
+            nodoArrivo_x, nodoArrivo_y = dictCoordinate[connessione.arrivo] 
+            
+        
+        
 
-pos = nx.kamada_kawai_layout(graph)
+        #disegno la linea con add_trace in x e y metto i due estremi della connessione
+            
+            '''
+            fig.add_trace(go.Scatter(x=[nodoPartenza_x, nodoArrivo_x], y=[nodoPartenza_y, nodoArrivo_y], mode = 'lines',
+                        line=dict(width=2), marker=dict(symbol='arrow', size=10, color = 'grey'), 
+                        name="relazione da " + nodo.nickname + ' a ' + grafo.dictNodi[connessione.arrivo].nickname, 
+                        hoverinfo='skip'))
+            
+            #fig.add_annotation(go.Scatter(x=[nodoArrivo_x], y = [nodoArrivo_y], showarrow = True, arrowhead = 2, arrowsize=1, arrowwidth=2 ))
+            '''
+            print(type(nodo.id))
+            if nodo.id == str(id_utente):
+                #è come se stessi mettendo un testo con la freccia, ma non metto il testo. Con l'altro metodo non riuscivo a mettere la freccia
+                fig.add_annotation(
+                x=nodoArrivo_x, y=nodoArrivo_y, ax=nodoPartenza_x, ay=nodoPartenza_y,
+                xref='x', yref='y', axref='x', ayref='y',
+                showarrow=True, arrowhead=5, arrowsize=1, arrowwidth=2, arrowcolor = 'black' 
+                )
+            else:
+                fig.add_annotation(
+                x=nodoArrivo_x, y=nodoArrivo_y, ax=nodoPartenza_x, ay=nodoPartenza_y,
+                xref='x', yref='y', axref='x', ayref='y',
+                showarrow=True, arrowhead=5, arrowsize=1, arrowwidth=2, arrowcolor = 'grey' 
+                )
 
-node_trace = go.Scatter(
-    x=[],
-    y=[],
-    text=[],
-    mode="markers",
-    hoverinfo="text",
-    marker=dict(
-        color="lightblue",
-        size=10,
-        line=dict(width=2, color="black")
-    )
-)
+            
+    
+    fig.update_layout(title='Grafo dei seguiti')
 
-edge_trace = go.Scatter(
-    x=[],
-    y=[],
-    line=dict(width=1, color="grey"),
-    hoverinfo="none",
-    mode="lines"
-)
+    # Visualizzazione del grafo
+    fig.show()
+    
+    
 
-# Aggiunta dei nodi al grafico
-for node in graph.nodes():
-    x, y = pos[node]
-    node_trace["x"] += tuple([x])
-    node_trace["y"] += tuple([y])
-    node_trace["text"] += tuple([graph.nodes[node]["nickname"]])
+def main():
+    grafo_utenti()
+    mostra_grafo(1)
 
-# Aggiunta degli archi al grafico
-for edge in graph.edges():
-    x0, y0 = pos[edge[0]]
-    x1, y1 = pos[edge[1]]
-    edge_trace["x"] += tuple([x0, x1, None])
-    edge_trace["y"] += tuple([y0, y1, None])
 
-# Creazione del grafo
-fig = go.Figure(data=[edge_trace, node_trace], layout=layout)
 
-# Visualizzazione del grafo
-fig.show()
+if __name__ == "__main__":
+    main()
+    
+
+
 
 '''# Esempio di visualizzazione del grafo
 import matplotlib.pyplot as plt
