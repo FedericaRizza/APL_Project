@@ -19,7 +19,20 @@ const (
 	token = "b1sz8clgm6864g2d0kl5kc4uoz0l0r"
 )
 //serve una map dove salvare client-connessione, (lista giochi e utenti?)
-var clients = make(map[int]net.Conn)
+
+/*
+type userData struct {
+	id int
+	replyCh chan userData
+	chat chan chatMsg
+}
+*/
+type msgData struct {
+	Sender int `json:"Sender"`
+	Receiver int `json:"Receiver"`
+	Text string `json:"Text"`
+
+}
 
 func main() {
 	fmt.Println("Avvio del server...")
@@ -34,31 +47,58 @@ func main() {
 
 	defer server.Close()
 
+	//avvio una goroutine connectionHandler per la gestione della mappa connessioni di tutti i client connessi, solo questa potrà modificarla
+	//mentre le altre goroutine faranno richieste get/set sulla mappa tramite canali appositi
+	/*
+	logChan := make(chan userData)
+	reqChan := make(chan userData)
+	bye := make(chan int)
+
+	go func() {
+		//mappa che contiene per ogni utente connesso l'id e il canale per il suo chatHandler
+		var clients = make(map[int](chan userData))
+		for {
+			select {
+			//quando un client logga invia al login channel il suo id e il suo chatHandler channel
+			case user:= <-logChan:
+				clients[user.id] = user.replyCh
+			//in reqChan un client richiede il canale per comunicare col chatHandler di un altro client: invia l'id dell utente che vuole
+			//contattare e il canale dove inviare i dati richiesti (se presenti)
+			case req:= <-reqChan:
+				req.replyCh<- userData{id:req.id, replyCh:clients[req.id]} //se l'utente non è connesso il canale è nil
+			//quando un client fa logout lo comunica al connectionHandler, che toglie i suoi dati dalla mappa utenti connessi
+			case id:= <-bye:
+				delete(clients, id)
+			}
+		}
+	}()
+*/
 	//accept viene usata per accettare nuove connessioni in entrata sulla porta del server.
 	//se la connessione è accettata con successo viene restituita un'istanza della connessione (net.Conn) che mi rappresenta la connessione appena stabilita tra il server e il vlient
 	//in questo caso viene fatto dentro ad un loop che viene eseguito solo una volta, per accettare quindi una singola connessione
 
 	for {
 
-		fmt.Println("Routine principale in attesa di nuovi client")
+		fmt.Println("Server in attesa di nuovi client")
 		connection, err := server.Accept()
 		if err != nil {
 			fmt.Println("Errore di connessione")
 			return
 		}
 		
-		go handleClient(connection)
+		go handleClient(connection)//, logChan, reqChan, bye)
 		
-	}
-	fmt.Println("Processo principale in chiusura, oh no!")
+	}	
 }
 
 // chiamata ogni volta che un client si connette al server
-func handleClient(conn net.Conn) {
+func handleClient(conn net.Conn){//, logChan chan userData, reqChan chan userData, bye chan int) {
 	defer conn.Close()
 	//appena il client termina la comunicazione, la connesione viene chiusa
 
 	var utente user
+	//var chatHandlerChan chan userData
+	//var quit chan bool
 	
 	buffer:= make([]byte,1024)
 	var reader = bufio.NewReader(conn)
@@ -101,7 +141,10 @@ func handleClient(conn net.Conn) {
 			done:=login(usr,psw,&utente)
 			if done {
 				buffer=[]byte("1")
-				conn.Write(buffer)
+				conn.Write(buffer)/*
+				chatHandlerChan= make(chan userData)
+				logChan <- userData{id:utente.UserID, replyCh:chatHandlerChan}
+				go handleChatRequest(chatHandlerChan, quit) //devo passargli il canale?*/
 				//invio i dati utente al client sotto forma di json
 				jsonUtente,_ := json.Marshal(utente)
 				conn.Write(jsonUtente)
@@ -133,7 +176,7 @@ func handleClient(conn net.Conn) {
 			gameName = strings.ReplaceAll(gameName, "\n", "")
 			//se anzichè inserire il gioco faccio annulla, arriva il comando di ABORT
 			if gameName == "ABORT" {
-				break
+				break				
 			}
 			fmt.Println("dopo il break abort ",gameName)
 			//se anzichè inserire un gioco faccio una nuova ricerca??? ---> modificare il form con due panel
@@ -209,6 +252,70 @@ func handleClient(conn net.Conn) {
 			fmt.Println("prima di write")
 			conn.Write(buffer)
 			fmt.Println("dopo write")
+
+		case "CHAT":
+			//ricevo il nome dell'utente con cui si vuole chattare, e si recupera la conversazione
+			receiver,_ := reader.ReadString('\n')
+			receiver = strings.ReplaceAll(receiver, "\n", "")
+			var recID int
+			for k,v:= range utente.FollowingList {
+				if v == receiver {
+					recID = k
+					break
+				}
+			}
+			conversation := getChat(utente.UserID, recID)
+			//torna la lista di messaggi, la invio al client
+			for msg:= range conversation {
+				jsonMsg,_ := json.Marshal(msg)
+				conn.Write(jsonMsg)
+				reader.ReadByte() //per sync con client
+			}
+			conn.Write([]byte("*")) //end of msg list
+
+		case "SEND":
+			//ricevo il nome dell'utente con cui si sta chattando e il messaggio da inviargli
+			receiver,_ := reader.ReadString(' ')
+			receiver = strings.ReplaceAll(receiver, " ", "")
+			textMsg,_ := reader.ReadString('\n')
+			textMsg = strings.ReplaceAll(textMsg, "\n", "")
+
+			var receiverID int
+			for k,v:= range utente.FollowingList {
+				if v == receiver {
+					receiverID = k
+					break
+				}
+			}
+
+			done:= saveMsg (utente.UserID, receiverID, textMsg)
+
+			if done {
+				
+				buffer=[]byte("1")
+			} else {
+				buffer=[]byte("0")
+			}
+			conn.Write(buffer)
+
+			//se l utente è in mappa connessioni inviare il messaggio anche a lui?
+
+
+
+			/*uID := reader.ReadString('\n')
+			uID = strings.ReplaceAll(chatID, "\n", "")
+			respCh := make(chan userData)
+			reqChan<- userData{id: uID, replyCh:respCh}
+			data:=<-respCh
+			go chat(data)
+			/*go func() {
+				chatID := reader.ReadString('\n')
+				chatID = strings.ReplaceAll(chatID, "\n", "")
+				reqChan <- chatID
+				destData:= <-dataChan
+				toChat := destData.conn
+				toChat.Write([]byte("CHAT\n"))
+				*/
 		
 		case "ABORT":
 			fmt.Println("operazione abort")
@@ -216,14 +323,47 @@ func handleClient(conn net.Conn) {
 		case "CLOSE":
 			//cancellare la connessione dalla mappa
 			fmt.Println("Dissconnessione del client in corso...")
+			//bye <- utente.UserID
+			//quit <- true
+			//chiudere i canali?
 			conn.Close()
 			return
+
 		default:
 			continue
 			
 
 		}
-
 	}
 
 }
+/*
+func handleChatRequest(chatHandlerChan chan userData, quit chan bool) {
+	for {
+		select {
+		//quando arriva una richiesta di chat da un utente, viene avviata una goroutine per quella conversazione
+		case data:= <-chatHandlerChan:
+			go chat(data)
+		//gestire quit di tutte le chat?	
+
+		case esc:= <-quit:
+			if esc {
+				return
+			}
+
+		}
+	}
+}
+
+func chat(data userData) {
+	readCh:= make(chan chatMsg)
+	data.replyCh<- userData{chat:readCh}
+	writeCh:= data.chat
+	select {
+	case a:=<-readCh:
+		utente.id
+	default:
+	}
+
+}
+*/
