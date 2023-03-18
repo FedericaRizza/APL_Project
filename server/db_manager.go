@@ -267,6 +267,6 @@ func getChat (id1, id2 int) []msgData{
 //TODO salva il messaggio in tabella messaggi: dai due id recupera l'id conversazione da salvare nell'entry del messaggio
 //Ritorna un booleano per sapere se è andato tutto a buon fine
 //Eventualmente aggiungiamo il campo timestamp alla tabella, in modo che sia il server ad inserirlo, e l'id lo facciamo diventare un int
-func saveMsg (fromID int, toID int, msg msgData) bool {
+func saveMsg (fromID int, toID int, msg string) bool {
 
 }
