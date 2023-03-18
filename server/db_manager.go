@@ -142,6 +142,8 @@ func login(nick string, psw string, u *user) bool {
 	fmt.Println(u.nick)
 	fmt.Println(u.userID)*/
 
+	
+
 	return true
 
 }
@@ -257,10 +259,11 @@ func followUser(userID int, follwingID int) bool {
 
 }*/
 
-//TODO trova l'id conversazione tra id1 e id2, dopodichè ritorna in una lista tutti i messaggi di quella conversazione
+//TODO trova l'id conversazione tra id1 e id2, dopodichè ritorna in una lista tutti i messaggi di quella conversazione.
+//Se non esiste la conversazione tra id1 e id2 o tra id2 e id1 la crea e torna la lista vuota (poichè la query dei messaggi non torna niente)
 //Nella lista ci sono elementi msgData, quindi per ogni messaggio serve prendere mittente, destinatario e testo del messaggio
 func getChat (id1, id2 int) []msgData{
-
+	
 }
 
 
@@ -268,5 +271,5 @@ func getChat (id1, id2 int) []msgData{
 //Ritorna un booleano per sapere se è andato tutto a buon fine
 //Eventualmente aggiungiamo il campo timestamp alla tabella, in modo che sia il server ad inserirlo, e l'id lo facciamo diventare un int
 func saveMsg (fromID int, toID int, msg string) bool {
-
+	
 }
