@@ -42,6 +42,10 @@ CREATE TABLE IF NOT EXISTS utente_giochi (
 CREATE TABLE IF NOT EXISTS conversazioni (
 	id_conversazione INT(11) NOT NULL AUTO_INCREMENT,
     PRIMARY KEY(id_conversazione)
+    utente1 INT(11) NOT NULL,
+    utente2 INT(11) NOT NULL,
+    FOREIGN KEY (utente1) REFERENCES utenti(id_utente) ON DELETE CASCADE,
+    FOREIGN KEY (utente2) REFERENCES utenti(id_utente) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS messaggi (

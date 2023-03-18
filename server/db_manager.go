@@ -123,6 +123,13 @@ func login(nick string, psw string, u *user) bool {
 		//u.FollowingList = append(u.FollowingList, amico) //append restituisce un nuovo slice contenente gli elementi aggiunti
 	}
 
+	//TODO	aggiungere query per recuperare la lista chat di un utente dalla tabella conversazioni 
+	//(salvare in lista il nome del destinatario con u.setChatList(nome))
+
+	//TODO aggiungere query per creare la mappa gioco-following che hanno quel gioco (salvarla con u.setSharedGames())
+	// for _,gioco:= range u.GameList		 rows := (query che recupera i miei seguiti che hanno gioco) 		
+	//for rows.Next()  rows.Scan(&seguito)  if(seguito != u.Nick) u.setSharedGames(gioco, seguito) per non inserire anche l'utente che fa la richiesta
+
 	//prove stampe
 	/*for _, gioco := range u.gameList {
 		fmt.Println("giochi:", gioco)
@@ -249,3 +256,17 @@ func followUser(userID int, follwingID int) bool {
 	}
 
 }*/
+
+//TODO trova l'id conversazione tra id1 e id2, dopodichè ritorna in una lista tutti i messaggi di quella conversazione
+//Nella lista ci sono elementi msgData, quindi per ogni messaggio serve prendere mittente, destinatario e testo del messaggio
+func getChat (id1, id2 int) []msgData{
+
+}
+
+
+//TODO salva il messaggio in tabella messaggi: dai due id recupera l'id conversazione da salvare nell'entry del messaggio
+//Ritorna un booleano per sapere se è andato tutto a buon fine
+//Eventualmente aggiungiamo il campo timestamp alla tabella, in modo che sia il server ad inserirlo, e l'id lo facciamo diventare un int
+func saveMsg (fromID int, toID int, msg msgData) bool {
+
+}
