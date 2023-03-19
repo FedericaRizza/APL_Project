@@ -118,16 +118,16 @@ func login(nick string, psw string, u *user) bool {
 	for rows1.Next() {
 		var id int
 		var seguito string
-		rows1.Scan(&id,&seguito)
+		rows1.Scan(&id, &seguito)
 		u.setFollowingList(id, seguito)
 		//u.FollowingList = append(u.FollowingList, amico) //append restituisce un nuovo slice contenente gli elementi aggiunti
 	}
 
-	//TODO	aggiungere query per recuperare la lista chat di un utente dalla tabella conversazioni 
+	//TODO	aggiungere query per recuperare la lista chat di un utente dalla tabella conversazioni
 	//(salvare in lista il nome del destinatario con u.setChatList(nome))
 
 	//TODO aggiungere query per creare la mappa gioco-following che hanno quel gioco (salvarla con u.setSharedGames())
-	// for _,gioco:= range u.GameList		 rows := (query che recupera i miei seguiti che hanno gioco) 		
+	// for _,gioco:= range u.GameList		 rows := (query che recupera i miei seguiti che hanno gioco)
 	//for rows.Next()  rows.Scan(&seguito)  if(seguito != u.Nick) u.setSharedGames(gioco, seguito) per non inserire anche l'utente che fa la richiesta
 
 	//prove stampe
@@ -141,8 +141,6 @@ func login(nick string, psw string, u *user) bool {
 
 	fmt.Println(u.nick)
 	fmt.Println(u.userID)*/
-
-	
 
 	return true
 
@@ -169,7 +167,6 @@ func addGame(gameName string, userID int) bool {
 			return false
 		}
 	}
-	
 
 	//inserisco anche nella tabella utente_giochi selezionando prima l'id del gioco
 	var id_gioco int
@@ -231,7 +228,7 @@ func followUser(userID int, follwingID int) bool {
 
 	_, err = db.Exec("INSERT INTO seguiti (utente, seguito) VALUES (?,?)", userID, follwingID) //passo psw_hash come array di byte
 	if err != nil {
-		fmt.Println ("dentro insert following")
+		fmt.Println("dentro insert following")
 		return false
 	}
 	fmt.Println("la query torna true")
@@ -259,18 +256,90 @@ func followUser(userID int, follwingID int) bool {
 
 }*/
 
-//TODO trova l'id conversazione tra id1 e id2, dopodichè ritorna in una lista tutti i messaggi di quella conversazione.
-//Se non esiste torna una lista vuota? o da errore? non serve crearla a questo step
-//Nella lista ci sono elementi msgData, quindi per ogni messaggio serve prendere mittente, destinatario e testo del messaggio
-func getChat (id1, id2 int) []msgData{
-	
+// TODO trova l'id conversazione tra id1 e id2, dopodichè ritorna in una lista tutti i messaggi di quella conversazione.
+// Se non esiste torna una lista vuota? o da errore? non serve crearla a questo step
+// Nella lista ci sono elementi msgData, quindi per ogni messaggio serve prendere mittente, destinatario e testo del messaggio
+func getChat(id1, id2 int) []msgData {
+
+	db, err := connectDB()
+
+	if err != nil {
+		return nil
+	}
+
+	defer db.Close()
+
+	rows, err := db.Query("SELECT mittente, destinatario, testo FROM messaggi WHERE conversazione IN (SELECT id_conversazione FROM conversazioni WHERE (utente1 = ? AND utente2 = ?) OR (utente1 = ? AND utente2 = ?))", id1, id2, id2, id1)
+	if err != nil {
+		return nil
+	}
+
+	mData := []msgData{}
+
+	if !rows.Next() {
+		return mData
+	} else {
+		for rows.Next() {
+			var msg msgData
+			e := rows.Scan(&msg.Sender, &msg.Receiver, &msg.Text)
+			if e != nil {
+				return nil
+			}
+			mData = append(mData, msg)
+		}
+	}
+	return mData
+
 }
 
+// TODO salva il messaggio in tabella messaggi: dai due id recupera l'id conversazione da salvare nell'entry del messaggio
+// Se non esiste la conversazione tra id1 e id2 o tra id2 e id1 la crea.
+// Ritorna un booleano per sapere se è andato tutto a buon fine
+// Eventualmente aggiungiamo il campo timestamp alla tabella, in modo che sia il server ad inserirlo, e l'id lo facciamo diventare un int
+func saveMsg(fromID int, toID int, msg string) bool {
 
-//TODO salva il messaggio in tabella messaggi: dai due id recupera l'id conversazione da salvare nell'entry del messaggio
-//Se non esiste la conversazione tra id1 e id2 o tra id2 e id1 la crea.
-//Ritorna un booleano per sapere se è andato tutto a buon fine
-//Eventualmente aggiungiamo il campo timestamp alla tabella, in modo che sia il server ad inserirlo, e l'id lo facciamo diventare un int
-func saveMsg (fromID int, toID int, msg string) bool {
-	
+	db, err := connectDB()
+
+	if err != nil {
+		return false
+	}
+
+	defer db.Close()
+
+	var IDconversazione int
+
+	rows, err := db.Query("SELECT id_conversazione FROM conversazioni WHERE (utente1 = ? AND utente2 = ?) OR (utente1 = ? AND utente2 = ?)", fromID, toID, toID, fromID)
+	if err != nil {
+		return false
+	}
+
+	if !rows.Next() {
+		_, e := db.Exec("INSERT INTO conversazioni (utente1, utente2) VALUES (?,?)", fromID, toID)
+		if e != nil {
+			return false
+		}
+
+		e2 := db.QueryRow("SELECT id_conversazione FROM conversazioni WHERE (utente1 = ? AND utente2 = ?) OR (utente1 = ? AND utente2 = ?)", fromID, toID, toID, fromID).Scan(&IDconversazione)
+		if e2 != nil {
+			return false
+		}
+
+		_, err2 := db.Exec("INSET INTO messaggi (conversazione, mittente, destinatario, testo)", IDconversazione, fromID, toID, msg)
+		if err2 != nil {
+			return false
+		}
+	} else {
+		e := rows.Scan(&IDconversazione)
+		if e != nil {
+			return false
+		}
+
+		_, err2 := db.Exec("INSERT INTO messaggi (conversazione, mittente, destinatario, testo)", IDconversazione, fromID, toID, msg)
+		if err2 != nil {
+			return false
+		}
+	}
+
+	return true
+
 }
