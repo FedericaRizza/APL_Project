@@ -127,7 +127,7 @@ func login(nick string, psw string, u *user) bool {
 	//(salvare in lista il nome del destinatario con u.setChatList(nome))
 
 	//TODO aggiungere query per creare la mappa gioco-following che hanno quel gioco (salvarla con u.setSharedGames())
-	// for _,gioco:= range u.GameList		 rows := (query che recupera i miei seguiti che hanno gioco)
+	// idGameList = (query per salvare gli id dei giochi utente in una lista) 		for _,gioco:= range idGameList		 rows := (query che recupera i miei seguiti che hanno gioco)
 	//for rows.Next()  rows.Scan(&seguito)  if(seguito != u.Nick) u.setSharedGames(gioco, seguito) per non inserire anche l'utente che fa la richiesta
 
 	//prove stampe
@@ -319,27 +319,23 @@ func saveMsg(fromID int, toID int, msg string) bool {
 			return false
 		}
 
-		e2 := db.QueryRow("SELECT id_conversazione FROM conversazioni WHERE (utente1 = ? AND utente2 = ?) OR (utente1 = ? AND utente2 = ?)", fromID, toID, toID, fromID).Scan(&IDconversazione)
+		e2 := db.QueryRow("SELECT id_conversazione FROM conversazioni WHERE (utente1 = ? AND utente2 = ?)", fromID, toID).Scan(&IDconversazione)
 		if e2 != nil {
 			return false
 		}
 
-		_, err2 := db.Exec("INSET INTO messaggi (conversazione, mittente, destinatario, testo)", IDconversazione, fromID, toID, msg)
-		if err2 != nil {
-			return false
-		}
 	} else {
 		e := rows.Scan(&IDconversazione)
 		if e != nil {
 			return false
 		}
 
-		_, err2 := db.Exec("INSERT INTO messaggi (conversazione, mittente, destinatario, testo)", IDconversazione, fromID, toID, msg)
-		if err2 != nil {
-			return false
-		}
 	}
-
+	_, err2 := db.Exec("INSERT INTO messaggi (conversazione, mittente, destinatario, testo)", IDconversazione, fromID, toID, msg)
+	if err2 != nil {
+		return false
+	}
+	
 	return true
 
 }
