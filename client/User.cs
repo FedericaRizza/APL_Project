@@ -12,5 +12,7 @@ namespace client
         public String Nick { get; set; }
         public IList<String> GameList { get; set; }
         public IDictionary<int, String> FollowingList { get; set; }
+        public IList<String> ChatList { get; set; }
+        public IDictionary<String, String[]> SharedGames { get; set;}
     }
 }
