@@ -64,6 +64,7 @@
             // listBoxGames
             // 
             this.listBoxGames.FormattingEnabled = true;
+            this.listBoxGames.HorizontalScrollbar = true;
             this.listBoxGames.ItemHeight = 32;
             this.listBoxGames.Location = new System.Drawing.Point(52, 111);
             this.listBoxGames.Name = "listBoxGames";
