@@ -18,20 +18,27 @@ const (
 	id = "79qp0roupexv53hnpss3x1wwdytgq5"
 	token = "b1sz8clgm6864g2d0kl5kc4uoz0l0r"
 )
-//serve una map dove salvare client-connessione, (lista giochi e utenti?)
 
-/*
+var (
+	logChan chan userData
+	reqChan chan reqData
+	bye chan int
+)
+
 type userData struct {
 	id int
-	replyCh chan userData
-	chat chan chatMsg
+	conn net.Conn
 }
-*/
+
+type reqData struct {
+	id int
+	replyCh chan userData
+}
+
 type msgData struct {
 	Sender int `json:"Sender"`
 	Receiver int `json:"Receiver"`
 	Text string `json:"Text"`
-
 }
 
 func main() {
@@ -49,30 +56,30 @@ func main() {
 
 	//avvio una goroutine connectionHandler per la gestione della mappa connessioni di tutti i client connessi, solo questa potrà modificarla
 	//mentre le altre goroutine faranno richieste get/set sulla mappa tramite canali appositi
-	/*
-	logChan := make(chan userData)
-	reqChan := make(chan userData)
-	bye := make(chan int)
+	
+	logChan = make(chan userData)
+	reqChan = make(chan reqData)
+	bye = make(chan int)
 
 	go func() {
-		//mappa che contiene per ogni utente connesso l'id e il canale per il suo chatHandler
-		var clients = make(map[int](chan userData))
+		//mappa che contiene per ogni utente connesso l'id e la sua connessione col client
+		var clients = make(map[int]net.Conn)
 		for {
 			select {
 			//quando un client logga invia al login channel il suo id e il suo chatHandler channel
 			case user:= <-logChan:
-				clients[user.id] = user.replyCh
-			//in reqChan un client richiede il canale per comunicare col chatHandler di un altro client: invia l'id dell utente che vuole
-			//contattare e il canale dove inviare i dati richiesti (se presenti)
+				clients[user.id] = user.conn
+			// in reqChan un client richiede la connessione per comunicare con un altro client: invia l'id dell utente che vuole
+			//contattare e il canale dove ricevere i dati richiesti (se presenti)
 			case req:= <-reqChan:
-				req.replyCh<- userData{id:req.id, replyCh:clients[req.id]} //se l'utente non è connesso il canale è nil
+				req.replyCh<- userData{req.id, clients[req.id]} //se l'utente non è connesso il canale è nil
 			//quando un client fa logout lo comunica al connectionHandler, che toglie i suoi dati dalla mappa utenti connessi
 			case id:= <-bye:
 				delete(clients, id)
 			}
 		}
 	}()
-*/
+
 	//accept viene usata per accettare nuove connessioni in entrata sulla porta del server.
 	//se la connessione è accettata con successo viene restituita un'istanza della connessione (net.Conn) che mi rappresenta la connessione appena stabilita tra il server e il vlient
 	//in questo caso viene fatto dentro ad un loop che viene eseguito solo una volta, per accettare quindi una singola connessione
@@ -126,24 +133,26 @@ func handleClient(conn net.Conn){//, logChan chan userData, reqChan chan userDat
 				} else {
 					buffer=[]byte("0")
 				}
-			conn.Write(buffer) //gestire err?
-
+				conn.Write(buffer) //gestire err?
+				
 		case "LOGIN":
 			usr,_:=reader.ReadString(' ')
 			usr = strings.ReplaceAll(usr, " ", "")
 			
 			psw,_:=reader.ReadString('\n')
 			psw = strings.ReplaceAll(psw, "\n", "")
-
-			//svuoto utente per ogni login utente
+			
+			//inizializzo un utente vuoto al login
 			utente = newUser()
 			//qui si deve salvare nella mappa utenti-connessioni i dati relativi al client che si collega
 			done:=login(usr,psw,&utente)
 			if done {
 				buffer=[]byte("1")
-				conn.Write(buffer)/*
+				conn.Write(buffer)
+				//avvenuta la connessione aggiungo id e conn alla mappa utenti connessi
+				logChan <- userData{utente.UserID, conn}
+				/*
 				chatHandlerChan= make(chan userData)
-				logChan <- userData{id:utente.UserID, replyCh:chatHandlerChan}
 				go handleChatRequest(chatHandlerChan, quit) //devo passargli il canale?*/
 				//invio i dati utente al client sotto forma di json
 				jsonUtente,_ := json.Marshal(utente)
@@ -287,19 +296,30 @@ func handleClient(conn net.Conn){//, logChan chan userData, reqChan chan userDat
 					break
 				}
 			}
-
+			
 			done:= saveMsg (utente.UserID, receiverID, textMsg)
 
 			if done {
 				
 				buffer=[]byte("1")
-			} else {
-				buffer=[]byte("0")
-			}
+				} else {
+					buffer=[]byte("0")
+				}
 			conn.Write(buffer)
+			
+			//se l utente è in mappa connessioni inviare il messaggio anche al suo client
+			reply:= make(chan userData)
+			reqChan<- reqData {receiverID, reply}
+			receiverData:= <-reply
 
-			//se l utente è in mappa connessioni inviare il messaggio anche a lui?
-
+			if (receiverData.conn != nil) {
+				buffer= []byte("!")
+				msg:= msgData{utente.UserID, receiverID, textMsg}				
+				jsonMsg,_:= json.Marshal(msg)
+				buffer = append(buffer,jsonMsg...)
+				receiverData.conn.Write(buffer)
+			}
+			//questo messaggio viene letto dal chatListener del client
 
 
 			/*uID := reader.ReadString('\n')
@@ -320,18 +340,22 @@ func handleClient(conn net.Conn){//, logChan chan userData, reqChan chan userDat
 		case "ABORT":
 			fmt.Println("operazione abort")
 
+		case "LOGOUT":
+			bye<- utente.UserID
+			
+
 		case "CLOSE":
 			//cancellare la connessione dalla mappa
 			fmt.Println("Dissconnessione del client in corso...")
-			//bye <- utente.UserID
+			bye <- utente.UserID
 			//quit <- true
 			//chiudere i canali?
 			conn.Close()
+			//esce dal for e la goroutine termina
 			return
 
 		default:
-			continue
-			
+			continue			
 
 		}
 	}
