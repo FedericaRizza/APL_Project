@@ -91,7 +91,7 @@ func login(nick string, psw string, u *user) bool {
 
 	//controllo che nickname e password siano presenti nel DB
 	var password string
-	e := db.QueryRow("SELECT id_utente, nickname, pass FROM utenti WHERE nickname = ?", nick, psw).Scan(&u.UserID, &u.Nick, &password)
+	e := db.QueryRow("SELECT id_utente, nickname, pass FROM utenti WHERE nickname = ?", nick).Scan(&u.UserID, &u.Nick, &password)
 	if e != nil {
 		//ovviamente se entra qui basta per non poter fare il login
 		return false
@@ -173,14 +173,14 @@ func getInfoUtente(userID int, u *user) bool {
 	defer db.Close()
 
 	//controllo che nickname e password siano presenti nel DB
-	e := db.QueryRow("SELECT id_utente, nickname FROM utenti WHERE id_utente = ? AND pass = ?", userID).Scan(&u.UserID, &u.Nick) //qua lo modifico quindi &
+	e := db.QueryRow("SELECT id_utente, nickname FROM utenti WHERE id_utente = ?", userID).Scan(&u.UserID, &u.Nick) //qua lo modifico quindi &
 	if e != nil {
 		//ovviamente se entra qui basta per non poter fare il login
 		return false
 	}
 
 	//restituisco la lista dei giochi
-	rows, er := db.Query("SELECT nome FROM giochi JOIN utente_giochi ug ON id_gioco = ug.gioco JOIN utenti u ON u.id_utente = ug.utente WHERE u.id_utente = ?", u.Nick)
+	rows, er := db.Query("SELECT nome FROM giochi JOIN utente_giochi ug ON id_gioco = ug.gioco JOIN utenti u ON u.id_utente = ug.utente WHERE u.id_utente = ?", u.UserID)
 	if er != nil {
 		return false
 	}
