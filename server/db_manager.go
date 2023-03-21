@@ -125,6 +125,16 @@ func login(nick string, psw string, u *user) bool {
 
 	//TODO	aggiungere query per recuperare la lista chat di un utente dalla tabella conversazioni
 	//(salvare in lista il nome del destinatario con u.setChatList(nome))
+	rows2, er2 := db.Query("SELECT nickname FROM utenti u JOIN conversazioni c ON u.id_utente = c.utente1 OR u.id_utente = c.utente2 WHERE c.id_conversazione IN (SELECT conversazione FROM messaggi WHERE mittente = ? OR destinatario = ? ) AND u.id_utente != ?", u.UserID, u.UserID, u.UserID)
+	if er2 != nil {
+		return false
+	}
+
+	for rows2.Next() {
+		var utenteConversazione string
+		rows2.Scan(&utenteConversazione)
+		u.setChatList(utenteConversazione)
+	}
 
 	//TODO aggiungere query per creare la mappa gioco-following che hanno quel gioco (salvarla con u.setSharedGames())
 	// idGameList = (query per salvare gli id dei giochi utente in una lista) 		for _,gioco:= range idGameList		 rows := (query che recupera i miei seguiti che hanno gioco)
@@ -344,7 +354,6 @@ func saveMsg(fromID int, toID int, msg string) bool {
 		fmt.Println("sono in false insert mess ", err2)
 		return false
 	}
-	fmt.Println("savemsg torna true")
 	return true
 
 }

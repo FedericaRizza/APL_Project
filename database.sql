@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS conversazioni (
 );
 
 CREATE TABLE IF NOT EXISTS messaggi (
-	id_messaggio TIMESTAMP NOT NULL,
+	id_messaggio INT(11) NOT NULL AUTO_INCREMENT,
     conversazione INT(11) NOT NULL,
     mittente INT(11) NOT NULL,
     destinatario INT(11) NOT NULL,
