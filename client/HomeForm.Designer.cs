@@ -42,7 +42,7 @@
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.label3 = new System.Windows.Forms.Label();
             this.listBoxChat = new System.Windows.Forms.ListBox();
-            this.buttonChat = new System.Windows.Forms.Button();
+            this.buttonGraph = new System.Windows.Forms.Button();
             this.panelUser.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             this.tableLayoutPanelGiochiFollowing.SuspendLayout();
@@ -92,16 +92,14 @@
             // 
             // listBoxFollowing
             // 
-            this.listBoxFollowing.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
             this.listBoxFollowing.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
             this.listBoxFollowing.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.listBoxFollowing.Dock = System.Windows.Forms.DockStyle.Fill;
             this.listBoxFollowing.FormattingEnabled = true;
             this.listBoxFollowing.ItemHeight = 37;
             this.listBoxFollowing.Location = new System.Drawing.Point(3, 464);
             this.listBoxFollowing.Name = "listBoxFollowing";
-            this.listBoxFollowing.Size = new System.Drawing.Size(659, 333);
+            this.listBoxFollowing.Size = new System.Drawing.Size(659, 346);
             this.listBoxFollowing.TabIndex = 3;
             this.listBoxFollowing.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.listBoxFollowing_MouseDoubleClick);
             // 
@@ -122,7 +120,7 @@
             // 
             // buttonLogout
             // 
-            this.buttonLogout.BackColor = System.Drawing.SystemColors.HotTrack;
+            this.buttonLogout.BackColor = System.Drawing.Color.SteelBlue;
             this.buttonLogout.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.buttonLogout.Font = new System.Drawing.Font("Segoe UI", 10.125F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.buttonLogout.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
@@ -136,7 +134,7 @@
             // 
             // buttonFindUser
             // 
-            this.buttonFindUser.BackColor = System.Drawing.SystemColors.HotTrack;
+            this.buttonFindUser.BackColor = System.Drawing.Color.SteelBlue;
             this.buttonFindUser.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.buttonFindUser.Font = new System.Drawing.Font("Segoe UI", 10.125F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.buttonFindUser.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
@@ -150,7 +148,7 @@
             // 
             // buttonAddGame
             // 
-            this.buttonAddGame.BackColor = System.Drawing.SystemColors.HotTrack;
+            this.buttonAddGame.BackColor = System.Drawing.Color.SteelBlue;
             this.buttonAddGame.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.buttonAddGame.Font = new System.Drawing.Font("Segoe UI", 10.125F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.buttonAddGame.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
@@ -216,18 +214,18 @@
             // tableLayoutPanel1
             // 
             this.tableLayoutPanel1.ColumnCount = 1;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel1.Controls.Add(this.label3, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.listBoxChat, 0, 1);
-            this.tableLayoutPanel1.Controls.Add(this.buttonChat, 0, 2);
+            this.tableLayoutPanel1.Controls.Add(this.buttonGraph, 0, 2);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Font = new System.Drawing.Font("Segoe UI", 10.125F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.tableLayoutPanel1.Location = new System.Drawing.Point(674, 3);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 3;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 7.134071F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 92.86593F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 55F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 7.01107F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 75.27676F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 17.71218F));
             this.tableLayoutPanel1.Size = new System.Drawing.Size(666, 813);
             this.tableLayoutPanel1.TabIndex = 1;
             // 
@@ -239,38 +237,38 @@
             this.label3.Font = new System.Drawing.Font("Segoe UI Semibold", 10.125F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.label3.Location = new System.Drawing.Point(3, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(660, 54);
+            this.label3.Size = new System.Drawing.Size(660, 56);
             this.label3.TabIndex = 0;
             this.label3.Text = "Chat";
             this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // listBoxChat
             // 
-            this.listBoxChat.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
             this.listBoxChat.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.listBoxChat.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
+            this.listBoxChat.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.listBoxChat.ForeColor = System.Drawing.SystemColors.WindowText;
             this.listBoxChat.FormattingEnabled = true;
-            this.listBoxChat.ItemHeight = 80;
-            this.listBoxChat.Location = new System.Drawing.Point(3, 57);
+            this.listBoxChat.ItemHeight = 37;
+            this.listBoxChat.Location = new System.Drawing.Point(3, 59);
             this.listBoxChat.Name = "listBoxChat";
-            this.listBoxChat.Size = new System.Drawing.Size(660, 640);
+            this.listBoxChat.Size = new System.Drawing.Size(660, 606);
             this.listBoxChat.TabIndex = 1;
+            this.listBoxChat.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.listBoxChat_MouseDoubleClick);
             // 
-            // buttonChat
+            // buttonGraph
             // 
-            this.buttonChat.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonChat.BackColor = System.Drawing.Color.AliceBlue;
-            this.buttonChat.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.buttonChat.Location = new System.Drawing.Point(3, 760);
-            this.buttonChat.Name = "buttonChat";
-            this.buttonChat.Size = new System.Drawing.Size(660, 50);
-            this.buttonChat.TabIndex = 2;
-            this.buttonChat.Text = "Apri chat";
-            this.buttonChat.UseVisualStyleBackColor = false;
+            this.buttonGraph.BackColor = System.Drawing.Color.AliceBlue;
+            this.buttonGraph.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.buttonGraph.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.buttonGraph.Font = new System.Drawing.Font("Segoe UI Semibold", 10.125F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.buttonGraph.ForeColor = System.Drawing.Color.SteelBlue;
+            this.buttonGraph.Location = new System.Drawing.Point(3, 671);
+            this.buttonGraph.Name = "buttonGraph";
+            this.buttonGraph.Size = new System.Drawing.Size(660, 139);
+            this.buttonGraph.TabIndex = 2;
+            this.buttonGraph.Text = "Mostra relazioni tra following";
+            this.buttonGraph.UseVisualStyleBackColor = false;
+            this.buttonGraph.Click += new System.EventHandler(this.buttonGraph_Click);
             // 
             // HomeForm
             // 
@@ -284,6 +282,7 @@
             this.Name = "HomeForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Game Project";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.HomeForm_FormClosing);
             this.panelUser.ResumeLayout(false);
             this.panelUser.PerformLayout();
             this.tableLayoutPanel2.ResumeLayout(false);
@@ -310,6 +309,6 @@
         private TableLayoutPanel tableLayoutPanel1;
         private Label label3;
         private ListBox listBoxChat;
-        private Button buttonChat;
+        private Button buttonGraph;
     }
 }

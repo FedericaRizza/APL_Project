@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.VisualBasic.ApplicationServices;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -14,7 +15,7 @@ namespace client
     public delegate void ChatDel(MsgData newMsg);
     public partial class HomeForm : Form
     {
-        private ChatDel del;
+        
         private LogForm login;
         //string e non list perchè può essere aperta solo una chat per volta?
         private ChatForm chatOpened;
@@ -26,28 +27,24 @@ namespace client
             listBoxGames.Items.AddRange(Client.utente.GameList.ToArray<String>());
             //listBoxFollowing.Items.AddRange(Client.utente.FollowingList.Values.ToArray());
             listBoxChat.Items.AddRange(Client.utente.ChatList.ToArray<String>());
-            //fare dei metodi anzichè chiamare le proprietà?
-
-            ChatDel delHome = UpdateChat;
-            del = delHome;
-            Thread listener = new Thread(() => Client.ChatListener(del));
+            //fare dei metodi anzichè chiamare le proprietà?          
 
         }
-        public void UpdateChat(MsgData newMsg)
-        {
-            if (!chatOpened.ReceiverName.Equals(newMsg.Receiver))
+
+        //TOGLIERE, NON FUNZIONA
+        public void Alert(MsgData newMsg)
+        {//sistemare prendendo il nick dalla mappa, receiver è id
+            if (listBoxChat.InvokeRequired)
             {
-                ChatForm chat = new ChatForm(newMsg.Receiver);
-                //var conv = Client.OpenChat(newMsg.Receiver);
-                chat.Show();
-                chatOpened = chat;
+                Action selfdel = delegate { Alert(newMsg); };
+                listBoxChat.Invoke(selfdel);
             }
             else
             {
-                chatOpened.UpdateChat(newMsg);
+                var name = Client.utente.FollowingList[newMsg.Sender];
+                var index = listBoxChat.FindStringExact(name);
+                listBoxChat.Items[index] += "\t NUOVO MESSAGGIO!";
             }
-
-
         }
         
         private void labelUser_MouseHover(object sender, EventArgs e)
@@ -70,7 +67,8 @@ namespace client
         private void AddUser_FormClosing(object sender, FormClosingEventArgs e)
         {
             this.listBoxFollowing.Items.Clear();
-            this.listBoxFollowing.Items.AddRange(Client.utente.FollowingList.Values.ToArray());
+            this.listBoxFollowing.Items.AddRange(Client.utente.FollowingList.Values.ToArray()); //togliere
+
         }
 
         private void buttonAddGame_Click(object sender, EventArgs e)
@@ -101,13 +99,22 @@ namespace client
                 var user = listBoxFollowing.SelectedItem.ToString();
                 listBoxFollowing.ClearSelected();
                 //controlla se la chat è già aperta, aggiungere listener close
-                if (!chatOpened.ReceiverName.Equals(user))
+                if (chatOpened==null || !chatOpened.ReceiverName.Equals(user))
                 {
                     ChatForm chat = new ChatForm(user);
                     chatOpened = chat;
                     chat.Show();
+
+                    /*
+                    ChatDel del = chatOpened.Update;
+                    //del = delHome;
+                    Thread listener = new Thread(() => Client.ChatListener(del));
+                    listener.IsBackground = true;
+                    listener.Start();
+                    */ 
+
                     chat.FormClosing += Chat_FormClosing;
-                    listBoxChat.Refresh();
+                    
                 }
             }
            
@@ -115,6 +122,11 @@ namespace client
 
         private void Chat_FormClosing(object? sender, FormClosingEventArgs e)
         {
+            if (!Client.utente.ChatList.Contains(chatOpened.ReceiverName))
+            {
+                listBoxChat.Items.Add(chatOpened.ReceiverName);
+                
+            }
             chatOpened=null;
             
         }
@@ -125,8 +137,47 @@ namespace client
             {
                 var game = listBoxGames.SelectedItem.ToString();
                 listBoxFollowing.Items.Clear();
-                listBoxFollowing.Items.AddRange(Client.utente.SharedGames[game]);
+                listBoxFollowing.Items.AddRange(Client.utente.SharedGames[game].ToArray());
             }
+        }
+
+        private void buttonGraph_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process cmd = new System.Diagnostics.Process();
+            System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
+            //startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+            startInfo.FileName = "cmd.exe";
+            startInfo.Arguments = @"/c python prova.py";
+            //startInfo.UseShellExecute = false;
+            startInfo.WorkingDirectory = "C:\\Users\\feder\\Documents\\UProjects\\APL\\GameProject\\client";
+            cmd.StartInfo = startInfo;
+            cmd.Start();
+            cmd.WaitForExit();
+        }
+
+        private void listBoxChat_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            if (listBoxChat.SelectedItem != null)
+            {
+                var user = listBoxChat.SelectedItem.ToString();
+                listBoxChat.ClearSelected();
+                //controlla se la chat è già aperta, aggiungere listener close
+                if (chatOpened == null || !chatOpened.ReceiverName.Equals(user))
+                {
+                    ChatForm chat = new ChatForm(user);
+                    chatOpened = chat;
+                    chat.Show();
+
+                    chat.FormClosing += Chat_FormClosing;
+
+                }
+            }
+        }
+
+        private void HomeForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Client.Logout();            
+            login.Close();
         }
     }
 }
