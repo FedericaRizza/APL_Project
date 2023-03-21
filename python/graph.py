@@ -3,6 +3,7 @@ import socket
 import json
 from buildgraph import Grafo
 import random
+import sys
 
 grafo = Grafo()
 
@@ -151,13 +152,19 @@ def mostra_grafo(id_utente, nickname):
     # Visualizzazione del grafo
     fig.show()
     
+def logout():
+    message = "CLOSE\n"
+    client_socket.send(message.encode())
     
 
 
 
 if __name__ == "__main__":
-    grafo_utenti()
-    mostra_grafo(1, "fede")
+    print(type(sys.argv[1]), type(sys.argv[2]))
+    grafo_utenti(int(sys.argv[1]))
+    mostra_grafo(int(sys.argv[1]), sys.argv[2])
+    print("prima di logout")
+    logout()
     
 
 
