@@ -23,10 +23,17 @@ namespace client
             IPHostEntry host = Dns.GetHostEntry("localhost");
             IPAddress ipAddress = host.AddressList[0];
             IPEndPoint localEndPoint = new (ipAddress, 8000);
-            Socket c = new (ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-            c.Connect(localEndPoint); //gestire eccezione
-            client = c;
-            buffer = new byte[256];
+            try
+            {
+                Socket c = new (ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                c.Connect(localEndPoint); //gestire eccezione
+                client = c;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+            buffer = new byte[512];
 
             //inizializzo le liste altrimenti non posso aggiungere i dati se sono null
 
@@ -137,7 +144,7 @@ namespace client
 
         }
 
-        public static bool FollowUser(String UserName)
+        public static bool FollowUser(String UserName, String GameName)
         {
             //byte[] buffer = new byte[1024];
             byte[] msg = Encoding.ASCII.GetBytes(UserName + "\n");
@@ -157,6 +164,9 @@ namespace client
                 if (int.TryParse(id, out idUser))
                 {
                     utente.FollowingList.Add(idUser, UserName);
+                    if (!utente.SharedGames.ContainsKey(GameName))
+                        utente.SharedGames.Add(GameName, new List<String>());
+                    utente.SharedGames[GameName].Add(UserName);
                     return true;
                 }
                 else
@@ -200,7 +210,8 @@ namespace client
                 reply = buffer.Take(len).ToArray();
                 Array.Clear(buffer);
             }
-
+            if (!gameList.Any())
+                client.Send(Encoding.ASCII.GetBytes("ABORT\n"));
             return gameList.ToArray<String>();
         }
 
@@ -302,10 +313,11 @@ namespace client
             while(true){
                 //guarda se il primo byte corrisponde a !, simbolo che indica l'arrivo di un messaggio dal server
                 client.Receive(buf, 1, SocketFlags.Peek);
-                if (Encoding.ASCII.GetString(buf) == "!")
+                byte[] reply = buf.Take(1).ToArray();
+                if (Encoding.ASCII.GetString(reply) == "!")
                 {
                     var len = client.Receive(buf);
-                    byte[] reply = buffer.Take(len).ToArray();
+                    reply = buf.Take(len).ToArray();
                     byte[] jsonMsg = reply.Skip(1).ToArray<byte>();
                     var msg = JsonSerializer.Deserialize<MsgData>(jsonMsg);
                     del(msg); //delegato di qualche update di home
@@ -313,8 +325,7 @@ namespace client
 
             }
         }
-        public static void prova(HomeForm home) { }
-
+        
     }
 
    
@@ -322,8 +333,8 @@ namespace client
     //cambiare in struct??? eredito da eventargs per poter passare il dato con l'evento
     public struct MsgData 
     {
-        public String Sender { get; set; }
-        public String Receiver { get; set; }
+        public int Sender { get; set; }
+        public int Receiver { get; set; }
         public String Text { get; set; }
     }
 }
