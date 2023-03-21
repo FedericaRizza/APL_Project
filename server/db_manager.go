@@ -269,24 +269,30 @@ func getChat(id1, id2 int) []msgData {
 
 	defer db.Close()
 
+	fmt.Println("id:", id1, id2)
 	rows, err := db.Query("SELECT mittente, destinatario, testo FROM messaggi WHERE conversazione IN (SELECT id_conversazione FROM conversazioni WHERE (utente1 = ? AND utente2 = ?) OR (utente1 = ? AND utente2 = ?))", id1, id2, id2, id1)
 	if err != nil {
+		fmt.Println(err)
 		return nil
 	}
 
-	mData := []msgData{}
+	mData := make([]msgData,0,10)
 
-	if !rows.Next() {
+	/*if !rows.Next() {
+		fmt.Println("sono qui")
 		return mData
-	} else {
+	} else {*/
 		for rows.Next() {
 			var msg msgData
 			e := rows.Scan(&msg.Sender, &msg.Receiver, &msg.Text)
+			fmt.Println(msg.Sender, msg.Receiver,msg.Text)
 			if e != nil {
+				fmt.Println("qui: ", e)
 				return nil
 			}
 			mData = append(mData, msg)
-		}
+			fmt.Println("inizializzo la chat ",msg.Text)
+		//}
 	}
 	return mData
 
@@ -314,6 +320,7 @@ func saveMsg(fromID int, toID int, msg string) bool {
 	}
 
 	if !rows.Next() {
+		fmt.Println("conversazione non presente, la aggiungo")
 		_, e := db.Exec("INSERT INTO conversazioni (utente1, utente2) VALUES (?,?)", fromID, toID)
 		if e != nil {
 			return false
@@ -323,6 +330,7 @@ func saveMsg(fromID int, toID int, msg string) bool {
 		if e2 != nil {
 			return false
 		}
+		fmt.Println("id: ", IDconversazione)
 
 	} else {
 		e := rows.Scan(&IDconversazione)
@@ -331,11 +339,12 @@ func saveMsg(fromID int, toID int, msg string) bool {
 		}
 
 	}
-	_, err2 := db.Exec("INSERT INTO messaggi (conversazione, mittente, destinatario, testo)", IDconversazione, fromID, toID, msg)
+	_, err2 := db.Exec("INSERT INTO messaggi (conversazione, mittente, destinatario, testo) VALUES (?,?,?,?)", IDconversazione, fromID, toID, msg)
 	if err2 != nil {
+		fmt.Println("sono in false insert mess ", err2)
 		return false
 	}
-	
+	fmt.Println("savemsg torna true")
 	return true
 
 }
