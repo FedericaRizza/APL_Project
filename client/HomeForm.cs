@@ -147,9 +147,10 @@ namespace client
             System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
             //startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
             startInfo.FileName = "cmd.exe";
-            startInfo.Arguments = @"/c python prova.py";
+            startInfo.Arguments = @"/c python graph.py" +" "+ Client.utente.UserID +" "+ Client.utente.Nick;
+            MessageBox.Show(startInfo.Arguments);
             //startInfo.UseShellExecute = false;
-            startInfo.WorkingDirectory = "C:\\Users\\feder\\Documents\\UProjects\\APL\\GameProject\\client";
+            startInfo.WorkingDirectory = "C:\\Users\\feder\\Documents\\UProjects\\APL\\GameProject\\python";
             cmd.StartInfo = startInfo;
             cmd.Start();
             cmd.WaitForExit();
@@ -177,7 +178,7 @@ namespace client
         private void HomeForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             Client.Logout();            
-            login.Close();
+            login.Show();
         }
     }
 }
