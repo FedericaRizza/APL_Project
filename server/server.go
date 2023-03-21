@@ -64,6 +64,7 @@ func main() {
 	go func() {
 		//mappa che contiene per ogni utente connesso l'id e la sua connessione col client
 		var clients = make(map[int]net.Conn)
+		
 		for {
 			select {
 			//quando un client logga invia al login channel il suo id e il suo chatHandler channel
@@ -89,17 +90,16 @@ func main() {
 		fmt.Println("Server in attesa di nuovi client")
 		connection, err := server.Accept()
 		if err != nil {
-			fmt.Println("Errore di connessione")
 			return
 		}
 		
-		go handleClient(connection)//, logChan, reqChan, bye)
+		go handleClient(connection)
 		
 	}	
 }
 
 // chiamata ogni volta che un client si connette al server
-func handleClient(conn net.Conn){//, logChan chan userData, reqChan chan userData, bye chan int) {
+func handleClient(conn net.Conn){
 	defer conn.Close()
 	//appena il client termina la comunicazione, la connesione viene chiusa
 
@@ -107,7 +107,7 @@ func handleClient(conn net.Conn){//, logChan chan userData, reqChan chan userDat
 	//var chatHandlerChan chan userData
 	//var quit chan bool
 	
-	buffer:= make([]byte,1024)
+	buffer:= make([]byte,512)
 	var reader = bufio.NewReader(conn)
 	
 	for {
@@ -133,7 +133,7 @@ func handleClient(conn net.Conn){//, logChan chan userData, reqChan chan userDat
 				} else {
 					buffer=[]byte("0")
 				}
-				conn.Write(buffer) //gestire err?
+			conn.Write(buffer) //gestire err?
 				
 		case "LOGIN":
 			usr,_:=reader.ReadString(' ')
@@ -163,16 +163,16 @@ func handleClient(conn net.Conn){//, logChan chan userData, reqChan chan userDat
 				}
 
 		case "ADDGAME":
-			fmt.Println("Sono in addgame")
+			//fmt.Println("Sono in addgame")
 			name,_:=reader.ReadString('\n')
-			fmt.Println(name)
+			//fmt.Println(name)
 			name = strings.ReplaceAll(name, "\n", "")
-			fmt.Println("cerco il gioco con: ",name)
+			//fmt.Println("cerco il gioco con: ",name)
 			//ricerca gioco tramite igdb API
 			igdbClient:= igdb.NewClient(id, token, nil)
 			gameList,_:= igdbClient.Search(name, igdb.SetLimit(30), igdb.SetFields("name")) //rimettere err
 			for _,v:= range gameList {
-				fmt.Println("trovato: ",v.Name)
+				//fmt.Println("trovato: ",v.Name)
 				buffer = []byte(v.Name)
 				conn.Write(buffer)
 				reader.ReadByte()
@@ -181,18 +181,15 @@ func handleClient(conn net.Conn){//, logChan chan userData, reqChan chan userDat
 			conn.Write([]byte("*")) //indica la fine della lista giochi
 
 			gameName,_:=reader.ReadString('\n')
-			fmt.Println("leggo il nome gioco: ", gameName)
+			//fmt.Println("leggo il nome gioco: ", gameName)
 			gameName = strings.ReplaceAll(gameName, "\n", "")
 			//se anzichè inserire il gioco faccio annulla, arriva il comando di ABORT
 			if gameName == "ABORT" {
 				break				
 			}
-			fmt.Println("dopo il break abort ",gameName)
-			//se anzichè inserire un gioco faccio una nuova ricerca??? ---> modificare il form con due panel
-			if gameName == "ADDGAME" {
-				//goto label?
-			}
-			fmt.Println("dopo Addname ", gameName)
+			//fmt.Println("dopo il break abort ",gameName)
+			
+			//fmt.Println("dopo Addname ", gameName)
 			//se salva correttamente nel db lo aggiunge in gameList di utente
 			done:= addGame(gameName, utente.UserID) 
 			if done {
@@ -204,19 +201,21 @@ func handleClient(conn net.Conn){//, logChan chan userData, reqChan chan userDat
 			conn.Write(buffer)
 
 		case "FOLLOW":
-			fmt.Println("sono in follow")
+			//fmt.Println("sono in follow")
 			gameName,_:=reader.ReadString('\n')
 			gameName = strings.ReplaceAll(gameName, "\n", "")
-			fmt.Println("gioco ", gameName)
-			userMap,_:= findUser(gameName) //rimettere err
+			//fmt.Println("gioco ", gameName)
+			userMap, empty:= findUser(gameName) //rimettere err
 			//tolgo dalla mappa utenti che hanno il gioco l'utente relativo al client e i suoi seguiti
-			delete(userMap, utente.UserID)	
-			for userId:= range utente.FollowingList {
-				delete(userMap, userId)
-			}		
+			if(!empty) {				
+				delete(userMap, utente.UserID)	
+				for userId:= range utente.FollowingList {
+					delete(userMap, userId)
+				}		
+			}
 			//invia lista utenti
 			for _,uName:= range userMap {
-				fmt.Println("dentro map ", uName)
+				//fmt.Println("dentro map ", uName)
 				buffer = []byte(uName)
 				conn.Write(buffer)
 				reader.ReadByte()
@@ -225,42 +224,42 @@ func handleClient(conn net.Conn){//, logChan chan userData, reqChan chan userDat
 			
 			//riceve nick dell'utente da aggiungere
 			followingName,_:= reader.ReadString('\n')
-			fmt.Println("--",followingName,"--")
+			//fmt.Println("--",followingName,"--")
 			followingName = strings.ReplaceAll(followingName, "\n", "")
-			fmt.Println("nick dell utente--",followingName,"--")
+			//fmt.Println("nick dell utente--",followingName,"--")
 			if followingName=="ABORT" {
 				fmt.Println("dentro abort")
 				break
 			}
-			fmt.Println("fuori abort")
+			//fmt.Println("fuori abort")
 			var done bool
 			var followingID int
 			//for sbagliato, in userName c è il nome del gioco, controllare
 			for uID:= range userMap {
-				fmt.Println("dentro ricerca mappa")
-				fmt.Println(uID, userMap[uID])
+				//fmt.Println("dentro ricerca mappa")
+				//fmt.Println(uID, userMap[uID])
 				if userMap[uID]==followingName {
-					fmt.Println("utente trovato, lo aggiungo")
+					//fmt.Println("utente trovato, lo aggiungo")
 					done = followUser(utente.UserID, uID)
 					fmt.Println(done)
 					followingID = uID
 					break
 				}
 			}
-			fmt.Println("prima di done")
+			//fmt.Println("prima di done")
 			
 			//se l'inserimento è andato a buon fine torno l'id del following
 			if done {
 				utente.setFollowingList(followingID,followingName)
-				fmt.Println("done si")
+				//fmt.Println("done si")
 				buffer=[]byte(strconv.Itoa(followingID))
 			} else {
-				fmt.Println("done no")
+				//fmt.Println("done no")
 				buffer=[]byte("error")
 			}
-			fmt.Println("prima di write")
+			//fmt.Println("prima di write")
 			conn.Write(buffer)
-			fmt.Println("dopo write")
+			//fmt.Println("dopo write")
 
 		case "CHAT":
 			//ricevo il nome dell'utente con cui si vuole chattare, e si recupera la conversazione
@@ -269,13 +268,17 @@ func handleClient(conn net.Conn){//, logChan chan userData, reqChan chan userDat
 			var recID int
 			for k,v:= range utente.FollowingList {
 				if v == receiver {
+					//fmt.Println("utente trovato: ", k,v)
 					recID = k
 					break
 				}
 			}
 			conversation := getChat(utente.UserID, recID)
 			//torna la lista di messaggi, la invio al client
-			for msg:= range conversation {
+			//fmt.Println("conv: ", conversation)
+
+			for _,msg:= range conversation {
+				//fmt.Println("messaggio: ", msg.Text)
 				jsonMsg,_ := json.Marshal(msg)
 				conn.Write(jsonMsg)
 				reader.ReadByte() //per sync con client
@@ -289,6 +292,7 @@ func handleClient(conn net.Conn){//, logChan chan userData, reqChan chan userDat
 			textMsg,_ := reader.ReadString('\n')
 			textMsg = strings.ReplaceAll(textMsg, "\n", "")
 
+			//fmt.Println("ricevuto: ", receiver, textMsg)
 			var receiverID int
 			for k,v:= range utente.FollowingList {
 				if v == receiver {
@@ -311,6 +315,7 @@ func handleClient(conn net.Conn){//, logChan chan userData, reqChan chan userDat
 			reply:= make(chan userData)
 			reqChan<- reqData {receiverID, reply}
 			receiverData:= <-reply
+			//fmt.Println(receiverData.id, receiverData.conn)
 
 			if (receiverData.conn != nil) {
 				buffer= []byte("!")
