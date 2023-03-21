@@ -50,45 +50,47 @@
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 3;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 17.88963F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 82.11037F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 14.04762F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 85.95238F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 170F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(1363, 996);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(1148, 1011);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // labelNickname
             // 
             this.labelNickname.AutoSize = true;
+            this.tableLayoutPanel1.SetColumnSpan(this.labelNickname, 2);
             this.labelNickname.Dock = System.Windows.Forms.DockStyle.Fill;
             this.labelNickname.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.labelNickname.Font = new System.Drawing.Font("Segoe UI Semibold", 13.875F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.labelNickname.ForeColor = System.Drawing.Color.LightCyan;
             this.labelNickname.Location = new System.Drawing.Point(3, 0);
             this.labelNickname.Name = "labelNickname";
-            this.labelNickname.Size = new System.Drawing.Size(1084, 147);
+            this.labelNickname.Size = new System.Drawing.Size(1142, 118);
             this.labelNickname.TabIndex = 2;
             this.labelNickname.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.labelNickname.UseMnemonic = false;
             // 
             // richTextBoxChat
             // 
+            this.richTextBoxChat.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)));
             this.richTextBoxChat.BackColor = System.Drawing.Color.AliceBlue;
             this.richTextBoxChat.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.tableLayoutPanel1.SetColumnSpan(this.richTextBoxChat, 2);
-            this.richTextBoxChat.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.richTextBoxChat.Location = new System.Drawing.Point(3, 150);
+            this.richTextBoxChat.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.richTextBoxChat.Location = new System.Drawing.Point(31, 121);
             this.richTextBoxChat.Name = "richTextBoxChat";
             this.richTextBoxChat.ReadOnly = true;
-            this.richTextBoxChat.Size = new System.Drawing.Size(1357, 672);
+            this.richTextBoxChat.Size = new System.Drawing.Size(1086, 716);
             this.richTextBoxChat.TabIndex = 3;
             this.richTextBoxChat.Text = "";
             // 
             // buttonSend
             // 
-            this.buttonSend.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.buttonSend.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.buttonSend.Font = new System.Drawing.Font("Segoe UI Semibold", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.buttonSend.ForeColor = System.Drawing.Color.SteelBlue;
-            this.buttonSend.Location = new System.Drawing.Point(1120, 864);
+            this.buttonSend.Location = new System.Drawing.Point(921, 879);
             this.buttonSend.Name = "buttonSend";
             this.buttonSend.Size = new System.Drawing.Size(212, 93);
             this.buttonSend.TabIndex = 4;
@@ -101,9 +103,9 @@
             this.richTextBoxMsg.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.richTextBoxMsg.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.richTextBoxMsg.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.richTextBoxMsg.Location = new System.Drawing.Point(36, 837);
+            this.richTextBoxMsg.Location = new System.Drawing.Point(32, 860);
             this.richTextBoxMsg.Name = "richTextBoxMsg";
-            this.richTextBoxMsg.Size = new System.Drawing.Size(1018, 147);
+            this.richTextBoxMsg.Size = new System.Drawing.Size(853, 130);
             this.richTextBoxMsg.TabIndex = 5;
             this.richTextBoxMsg.Text = "";
             // 
@@ -111,8 +113,9 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1366, 996);
+            this.ClientSize = new System.Drawing.Size(1148, 1011);
             this.Controls.Add(this.tableLayoutPanel1);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "ChatForm";
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();

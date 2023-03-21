@@ -24,18 +24,49 @@ namespace client
             foreach (var msg in chat)
             {
                 String line;
-                if (msg.Sender == Client.utente.Nick)
-                    line = "Tu: ";
+                if (msg.Sender == Client.utente.UserID)
+                    line = "Tu:\t";
                 else
-                    line = msg.Sender + ": ";
+                    line = ReceiverName + ":\t";
                 line += msg.Text +"\n";
                 richTextBoxChat.AppendText(line);
             }
-        }
 
-        public void UpdateChat (MsgData newMsg)
+            ChatDel del = Update;
+            //del = delHome;
+            Thread listener = new Thread(() => Client.ChatListener(del));
+            listener.IsBackground = true;
+            listener.Start();
+        }
+        /*
+        public void UpdateChat(MsgData newMsg)
+        {//sistemare prendendo il nick dalla mappa, receiver è id
+
+            if (chatOpened == null || !chatOpened.ReceiverName.Equals(Client.utente.FollowingList[newMsg.Sender]))
+            {
+                ChatForm chat = new ChatForm(Client.utente.FollowingList[newMsg.Sender]);
+                //var conv = Client.OpenChat(newMsg.Receiver);
+                chat.Show();
+                chatOpened = chat;
+                
+            }
+            else
+            {
+                chatOpened.Update(newMsg);
+            }
+
+
+        }*/
+
+        public void Update (MsgData newMsg)
         {
-            richTextBoxChat.AppendText(newMsg.Text+"\n");
+            if(richTextBoxChat.InvokeRequired)
+            {
+                Action selfdel = delegate { Update(newMsg); };
+                richTextBoxChat.Invoke(selfdel);
+            }
+            else
+                richTextBoxChat.AppendText(ReceiverName + ":\t" + newMsg.Text + "\n");
         }
 
         private void buttonSend_Click(object sender, EventArgs e)
@@ -52,7 +83,7 @@ namespace client
                 return; 
             }
 
-            richTextBoxChat.AppendText("Tu: " + txt + "\n");
+            richTextBoxChat.AppendText("Tu:\t" + txt + "\n");
         }
     }
 }
