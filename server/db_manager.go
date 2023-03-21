@@ -90,11 +90,17 @@ func login(nick string, psw string, u *user) bool {
 	defer db.Close()
 
 	//controllo che nickname e password siano presenti nel DB
-	e := db.QueryRow("SELECT id_utente, nickname FROM utenti WHERE nickname = ? AND pass = ?", nick, psw).Scan(&u.UserID, &u.Nick)
+	var password string
+	e := db.QueryRow("SELECT id_utente, nickname, pass FROM utenti WHERE nickname = ?", nick, psw).Scan(&u.UserID, &u.Nick, &password)
 	if e != nil {
 		//ovviamente se entra qui basta per non poter fare il login
 		return false
 	}
+
+	if password != psw {
+		return false
+	}
+
 
 	//restituisco la lista dei giochi
 	rows, er := db.Query("SELECT nome FROM giochi JOIN utente_giochi ug ON id_gioco = ug.gioco JOIN utenti u ON u.id_utente = ug.utente WHERE u.nickname = ?", nick)
@@ -195,10 +201,12 @@ func addGame(gameName string, userID int) bool {
 
 // FUNZIONE TROVA UTENTI CHE POSSIEDONO UN DETERMINATO GIOCO -------------------------------
 func findUser(gameName string) (map[int]string, bool) {
+
+	utenti := make(map[int]string)
 	db, err := connectDB()
 
 	if err != nil {
-		return nil, false
+		return utenti, false
 	}
 
 	defer db.Close()
@@ -207,17 +215,16 @@ func findUser(gameName string) (map[int]string, bool) {
 	//join con giochi per recuperare i giochi
 	rows, err := db.Query("SELECT id_utente, nickname FROM utenti JOIN utente_giochi ug ON id_utente = ug.utente JOIN giochi g ON ug.gioco = g.id_gioco WHERE g.nome = ?", gameName)
 	if err != nil {
-		return nil, false
+		return utenti, false
 	}
 
-	utenti := make(map[int]string)
 	//accedo al risultato della query con Next
 	for rows.Next() {
 		var id int
 		var nick string
 		e := rows.Scan(&id, &nick)
 		if e != nil {
-			return nil, false
+			return utenti, false
 		}
 		utenti[id] = nick
 	}
