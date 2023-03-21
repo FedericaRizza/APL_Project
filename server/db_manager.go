@@ -162,6 +162,53 @@ func login(nick string, psw string, u *user) bool {
 
 }
 
+func getInfoUtente(userID int, u *user) bool {
+
+	db, err := connectDB()
+
+	if err != nil {
+		return false
+	}
+
+	defer db.Close()
+
+	//controllo che nickname e password siano presenti nel DB
+	e := db.QueryRow("SELECT id_utente, nickname FROM utenti WHERE id_utente = ? AND pass = ?", userID).Scan(&u.UserID, &u.Nick) //qua lo modifico quindi &
+	if e != nil {
+		//ovviamente se entra qui basta per non poter fare il login
+		return false
+	}
+
+	//restituisco la lista dei giochi
+	rows, er := db.Query("SELECT nome FROM giochi JOIN utente_giochi ug ON id_gioco = ug.gioco JOIN utenti u ON u.id_utente = ug.utente WHERE u.id_utente = ?", u.Nick)
+	if er != nil {
+		return false
+	}
+
+	for rows.Next() {
+		var gioco string
+		rows.Scan(&gioco)
+		u.GameList = append(u.GameList, gioco) //append restituisce un nuovo slice contenente gli elementi aggiunti
+	}
+
+	//restituisco la mappa dei seguiti
+
+	rows1, er1 := db.Query("SELECT u2.id_utente, u2.nickname FROM seguiti JOIN utenti u1 ON utente = u1.id_utente JOIN utenti u2 ON seguito = u2.id_utente WHERE u1.nickname = ?", u.Nick)
+	if er1 != nil {
+		return false
+	}
+
+	for rows1.Next() {
+		var id int
+		var seguito string
+		rows1.Scan(&id, &seguito)
+		u.setFollowingList(id, seguito)
+	}
+
+	return true
+
+}
+
 // FUNZIONE AGGIUNGI GIOCO --------------------------------------------------------------
 func addGame(gameName string, userID int) bool {
 
@@ -173,7 +220,6 @@ func addGame(gameName string, userID int) bool {
 
 	defer db.Close()
 
-	//controllo se il gioco è già presente nella tabella giochi
 	var count int
 	err = db.QueryRow("SELECT COUNT(*) FROM giochi WHERE nome = ?", gameName).Scan(&count)
 	if count == 0 {
@@ -195,6 +241,8 @@ func addGame(gameName string, userID int) bool {
 	if err != nil {
 		return false
 	}
+
+	//TODO: aggiungere il gioco anche nella struttura
 
 	return true
 }
@@ -249,7 +297,149 @@ func followUser(userID int, follwingID int) bool {
 		return false
 	}
 	fmt.Println("la query torna true")
+
+	//TODO: aggiungere il seguito anche alla struttura
+
 	return true
+
+}
+
+/*func allFollowing(userID int) (map[int]string, bool) {
+	db, err := connectDB()
+
+	if err != nil {
+		return nil, false
+	}
+
+	defer db.Close()
+
+	rows, err := db.Query("SELECT id_utente, nickname FROM seguiti JOIN utenti ON seguiti.seguito = utenti.id_utente WHERE seguiti.utente = ?", userID)
+	if err != nil {
+		return nil, false
+	}
+
+	seguiti := make(map[int]string)
+	//accedo al risultato della query con Next
+	for rows.Next() {
+		var id int
+		var nick string
+		e := rows.Scan(&id, &nick)
+		if e != nil {
+			return nil, false
+		}
+		seguiti[id] = nick
+	}
+
+	return seguiti, true
+}
+*/
+
+/*
+	func allFollowing(userID int) (map[int]string, bool) {
+		db, err := connectDB()
+
+		if err != nil {
+			return nil, false
+		}
+
+		defer db.Close()
+
+		rows, err := db.Query("SELECT id_utente, nickname FROM seguiti WHERE id_utente = ?", userID)
+		if err != nil {
+			return nil, false
+		}
+
+		seguiti := make(map[int]string)
+		//accedo al risultato della query con Next
+		for rows.Next() {
+			var id int
+			var nick string
+			e := rows.Scan(&id, &nick)
+			if e != nil {
+				return nil, false
+			}
+			seguiti[id] = nick
+		}
+
+		return seguiti, true
+	}
+*/
+
+type Relation struct {
+	IDutente  int `json:"IDutente"`
+	IDseguito int `json:"IDseguito"`
+}
+
+func allRelation(userID int) ([]Relation, bool) {
+	db, err := connectDB()
+
+	if err != nil {
+		return nil, false
+	}
+
+	defer db.Close()
+
+	/*
+		rows, err := db.Query("SELECT utente, seguito FROM seguiti")
+		if err != nil {
+			return nil, false
+		}*/
+
+	//Questa query selezionerà i seguiti dei seguiti dell'utente loggatoa che sono anche seguiti dall'utente con id 1, insieme all'id dell'utente che segue quel seguito e al nickname dell'utente con id 1.
+	rows, err := db.Query("SELECT DISTINCT s2.utente, s2.seguito FROM seguiti s1 JOIN seguiti s2 ON s1.seguito = s2.utente JOIN utenti u2 ON s2.seguito = u2.id_utente WHERE s1.utente = ? AND s2.seguito IN (SELECT seguito FROM seguiti WHERE utente = ?)", userID, userID)
+
+	if err != nil {
+		return nil, false
+	}
+
+	seguiti := []Relation{} //creo uno slice vuoto
+
+	for rows.Next() {
+		var relation Relation
+		e := rows.Scan(&relation.IDutente, &relation.IDseguito)
+		if e != nil {
+			return nil, false
+		}
+		seguiti = append(seguiti, relation)
+	}
+
+	return seguiti, true
+
+}
+
+type Conversazione struct {
+	Nmessaggi      int `json:"Nmessaggi"`
+	IDmittente     int `json:"IDmittente"`
+	IDdestinatario int `json:"IDdestinatario"`
+}
+
+func getConversazione() ([]Conversazione, bool) {
+	db, err := connectDB()
+
+	if err != nil {
+		return nil, false
+	}
+
+	defer db.Close()
+
+	rows, err := db.Query("SELECT COUNT(*) AS num_messaggi, m.mittente, m.destinatario FROM conversazioni c JOIN messaggi m ON c.id_conversazione = m.conversazione GROUP BY  m.mittente, m.destinatario, c.id_conversazione")
+
+	if err != nil {
+		return nil, false
+	}
+
+	conversazioni := []Conversazione{}
+
+	for rows.Next() {
+		var conversazione Conversazione
+		e := rows.Scan(&conversazione.Nmessaggi, &conversazione.IDmittente, &conversazione.IDdestinatario)
+		if e != nil {
+			return nil, false
+		}
+		conversazioni = append(conversazioni, conversazione)
+	}
+
+	return conversazioni, true
 
 }
 
