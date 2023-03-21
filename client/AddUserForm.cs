@@ -36,7 +36,7 @@ namespace client
                     listBoxUser.Items.Clear();
                     listBoxUser.Items.AddRange(users);
                     panel2.BringToFront();
-                    listBoxGames.ClearSelected(); //clear selected item
+                    
                     
 
                 }
@@ -50,6 +50,7 @@ namespace client
         private void buttonBack_Click(object sender, EventArgs e)
         {
             listBoxUser.ClearSelected();
+            listBoxGames.ClearSelected(); 
             panel1.BringToFront();
             Client.AbortAddOp();
         }
@@ -58,7 +59,7 @@ namespace client
         {
             if (listBoxUser.SelectedItem != null)
             {
-                if (Client.FollowUser(listBoxUser.SelectedItem.ToString()))
+                if (Client.FollowUser(listBoxUser.SelectedItem.ToString(), listBoxGames.SelectedItems.ToString()))
                 {
                     MessageBox.Show("Utente seguito");
                     

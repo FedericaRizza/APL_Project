@@ -42,6 +42,7 @@ namespace client
         private void buttonCancel_Click(object sender, EventArgs e)
         {
             this.Size = MinimumSize;
+            Client.AbortAddOp();
             panel1.BringToFront();
             listBoxGames.Items.Clear();
         }

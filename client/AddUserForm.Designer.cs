@@ -126,7 +126,7 @@
             this.buttonAdd.Name = "buttonAdd";
             this.buttonAdd.Size = new System.Drawing.Size(207, 80);
             this.buttonAdd.TabIndex = 2;
-            this.buttonAdd.Text = "Aggiungi";
+            this.buttonAdd.Text = "Segui";
             this.buttonAdd.UseVisualStyleBackColor = true;
             this.buttonAdd.Click += new System.EventHandler(this.buttonAdd_Click);
             // 
