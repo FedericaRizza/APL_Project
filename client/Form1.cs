@@ -40,6 +40,9 @@ namespace client
                 if (Client.SendRegister(textBoxNick.Text, textBoxPsw.Text))
                 { 
                     MessageBox.Show("Account creato correttamente.");
+                    textBoxNick.Clear();
+                    textBoxPsw2.Clear();
+                    textBoxPsw.Clear();
                     this.Hide();                    
                     login.Show();                    
                 }
