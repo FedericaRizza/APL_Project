@@ -117,7 +117,7 @@ func handleClient(conn net.Conn){
 		//legge il messaggio del client
 		//request,_:=bufio.NewReader(conn).ReadString(' ')//provare readline
 		request, _ := reader.ReadString('\n')
-		fmt.Println(request)
+		//fmt.Println(request)
 		request = strings.ReplaceAll(request, "\n", "")
 		//switch per gestire le varie richieste del client
 		switch request {
@@ -380,9 +380,10 @@ func handleClient(conn net.Conn){
 			u.FollowingList[3] = "mattia"
 
 			fmt.Println(u)*/
-
+			utente = newUser()
 			id_utente, _ := reader.ReadString('\n')
-
+			id_utente = strings.ReplaceAll(id_utente, "\n","")
+			
 			id, _ := strconv.Atoi(id_utente)
 			done := getInfoUtente(id, &utente)
 
