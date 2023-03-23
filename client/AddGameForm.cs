@@ -1,22 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-
-namespace client
+﻿namespace client
 {
     public partial class AddGameForm : Form
     {
-        private HomeForm home;
-        public AddGameForm(HomeForm home)
+        public AddGameForm()
         {
-            InitializeComponent();
-            this.home = home;
+            InitializeComponent();          
         }
 
         private void buttonSearch_Click(object sender, EventArgs e)
@@ -54,10 +42,7 @@ namespace client
             {
                 if (Client.AddGame(listBoxGames.SelectedItem.ToString()))
                 {
-                    MessageBox.Show("Gioco aggiunto");
-                    
-                    //home.listBoxGames.Items.Add(listBoxGames.SelectedItem.ToString());
-                    //home.listBoxGames.Refresh();
+                    MessageBox.Show("Gioco aggiunto");                    
                     this.Close();
                 }
                 else

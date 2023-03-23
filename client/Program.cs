@@ -1,5 +1,3 @@
-using System.Net.Sockets;
-
 namespace client
 {
     internal static class GameProject

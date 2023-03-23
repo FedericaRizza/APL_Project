@@ -19,3 +19,4 @@ C:\Users\feder\Documents\UProjects\APL\GameProject\client\obj\Debug\net6.0-windo
 C:\Users\feder\Documents\UProjects\APL\GameProject\client\obj\Debug\net6.0-windows\client.HomeForm.resources
 C:\Users\feder\Documents\UProjects\APL\GameProject\client\obj\Debug\net6.0-windows\client.AddGameForm.resources
 C:\Users\feder\Documents\UProjects\APL\GameProject\client\obj\Debug\net6.0-windows\client.AddUserForm.resources
+C:\Users\feder\Documents\UProjects\APL\GameProject\client\obj\Debug\net6.0-windows\client.ChatForm.resources

@@ -1,23 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-
-namespace client
+﻿namespace client
 {
     public partial class AddUserForm : Form
     {
-        private HomeForm home;
-        public AddUserForm(HomeForm home)
+        public AddUserForm()
         {
-            InitializeComponent();
-            this.home = home;
-            
+            InitializeComponent();           
             listBoxGames.Items.AddRange(Client.utente.GameList.ToArray<String>());
         }
 
@@ -61,10 +48,7 @@ namespace client
             {
                 if (Client.FollowUser(listBoxUser.SelectedItem.ToString(), listBoxGames.SelectedItems.ToString()))
                 {
-                    MessageBox.Show("Utente seguito");
-                    
-                    //home.listBoxFollowing.Items.Add(listBoxGames.SelectedItem.ToString());
-                    //home.listBoxFollowing.Refresh();
+                    MessageBox.Show("Utente seguito");                
                     this.Close();
                 }
                 else

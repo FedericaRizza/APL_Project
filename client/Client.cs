@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 using System.Net.Sockets;
 using System.Net;
 using System.Security.Cryptography;
-using System.Security.Policy;
-using System.Runtime.CompilerServices;
 
 namespace client
 {
@@ -26,21 +20,18 @@ namespace client
             try
             {
                 Socket c = new (ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-                c.Connect(localEndPoint); //gestire eccezione
+                c.Connect(localEndPoint);
                 client = c;
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
+                Console.Error.WriteLine(ex.ToString());
             }
             buffer = new byte[512];
-
-            //inizializzo le liste altrimenti non posso aggiungere i dati se sono null
 
         }
 
         public static bool SendRegister(String nick, String psw) {
-            //byte[] buffer = new byte[1024];
             String hash;
             using (SHA256 mySHA=SHA256.Create())
             {
@@ -54,8 +45,7 @@ namespace client
             }
             byte[] msg = Encoding.ASCII.GetBytes("REGISTER\n"+nick+" "+hash+"\n");
             client.Send(msg);
-            //Array.Clear(msg);
-            //Array.Clear(buffer);
+           
             int len = client.Receive(buffer);
 
             if (len == 0)
@@ -71,11 +61,9 @@ namespace client
 
         public static bool SendLogin (String nick, String psw)
         {
-            //byte[] buffer = new byte[1024];
             String hash;
             using (SHA256 mySHA = SHA256.Create())
             {
-                //algoritmo per portare hash da array di byte a string, dal sito microsoft
                 byte[] data = mySHA.ComputeHash(Encoding.UTF8.GetBytes(psw));
                 var builder = new StringBuilder();
                 for (int i=0; i<data.Length; i++){
@@ -113,9 +101,7 @@ namespace client
 
         public static String[] SearchUser(String GameName)
         {
-            //lavoro su una lista perchè non so quanti elementi si ricevono, poi lo converto in array
             IList<String> userList = new List<String>();
-            //byte[] buffer = new byte[1024];
             byte[] msg = Encoding.ASCII.GetBytes("FOLLOW\n" + GameName + "\n");
             client.Send(msg);
             int len = client.Receive(buffer);
@@ -146,7 +132,6 @@ namespace client
 
         public static bool FollowUser(String UserName, String GameName)
         {
-            //byte[] buffer = new byte[1024];
             byte[] msg = Encoding.ASCII.GetBytes(UserName + "\n");
             client.Send(msg);
 
@@ -186,7 +171,6 @@ namespace client
         public static String[] SearchGame(String GameName)
         {
             IList<String> gameList= new List<String>();
-            //byte[] buffer = new byte[1024];
             byte[] msg = Encoding.ASCII.GetBytes("ADDGAME\n" + GameName + "\n");
             client.Send(msg);
             int len = client.Receive(buffer);
@@ -217,7 +201,6 @@ namespace client
 
         public static bool AddGame(String GameName)
         {
-            //byte[] buffer = new byte[1024];
             byte[] msg = Encoding.ASCII.GetBytes(GameName + "\n");
             client.Send(msg);
 
@@ -320,7 +303,7 @@ namespace client
                     reply = buf.Take(len).ToArray();
                     byte[] jsonMsg = reply.Skip(1).ToArray<byte>();
                     var msg = JsonSerializer.Deserialize<MsgData>(jsonMsg);
-                    del(msg); //delegato di qualche update di home
+                    del(msg);
                 }
 
             }

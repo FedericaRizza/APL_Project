@@ -1,24 +1,10 @@
-﻿using Microsoft.VisualBasic.ApplicationServices;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using static System.Net.Mime.MediaTypeNames;
-
-namespace client
+﻿namespace client
 {
-    //visibilità namespace, così tutte le classi possono creare delegati ChatDel
     public delegate void ChatDel(MsgData newMsg);
     public partial class HomeForm : Form
     {
         
         private LogForm login;
-        //string e non list perchè può essere aperta solo una chat per volta?
         private ChatForm chatOpened;
         public HomeForm(LogForm log)
         {
@@ -26,27 +12,10 @@ namespace client
             login = log;
             labelUser.Text = "Ciao, " + Client.utente.Nick;
             listBoxGames.Items.AddRange(Client.utente.GameList.ToArray<String>());
-            //listBoxFollowing.Items.AddRange(Client.utente.FollowingList.Values.ToArray());
             listBoxChat.Items.AddRange(Client.utente.ChatList.ToArray<String>());
-            //fare dei metodi anzichè chiamare le proprietà?          
 
         }
 
-        //TOGLIERE, NON FUNZIONA
-        public void Alert(MsgData newMsg)
-        {//sistemare prendendo il nick dalla mappa, receiver è id
-            if (listBoxChat.InvokeRequired)
-            {
-                Action selfdel = delegate { Alert(newMsg); };
-                listBoxChat.Invoke(selfdel);
-            }
-            else
-            {
-                var name = Client.utente.FollowingList[newMsg.Sender];
-                var index = listBoxChat.FindStringExact(name);
-                listBoxChat.Items[index] += "\t NUOVO MESSAGGIO!";
-            }
-        }
         
         private void labelUser_MouseHover(object sender, EventArgs e)
         {
@@ -60,24 +29,23 @@ namespace client
         private void buttonFindUser_Click(object sender, EventArgs e)
         {
             panelUser.Size = panelUser.MinimumSize;
-            AddUserForm addUser = new AddUserForm(this);
+            AddUserForm addUser = new AddUserForm();
             addUser.Show();
-            addUser.FormClosing += AddUser_FormClosing; //delegato della funzione sotto
+            addUser.FormClosing += AddUser_FormClosing; 
         }
 
         private void AddUser_FormClosing(object sender, FormClosingEventArgs e)
         {
             this.listBoxFollowing.Items.Clear();
-            //this.listBoxFollowing.Items.AddRange(Client.utente.FollowingList.Values.ToArray()); //togliere
 
         }
 
         private void buttonAddGame_Click(object sender, EventArgs e)
         {
             panelUser.Size = panelUser.MinimumSize;
-            AddGameForm addGame = new AddGameForm(this);
+            AddGameForm addGame = new AddGameForm();
             addGame.Show();
-            addGame.FormClosing += AddGame_FormClosing; //delegato della funzione sotto
+            addGame.FormClosing += AddGame_FormClosing; 
         }
 
         private void AddGame_FormClosing(object sender, FormClosingEventArgs e)
@@ -89,7 +57,7 @@ namespace client
         private void buttonLogout_Click(object sender, EventArgs e)
         {
             Client.Logout();
-            this.Close(); //fare exit o tornare al login?
+            this.Close(); 
             login.Show();
         }
 
@@ -99,20 +67,12 @@ namespace client
             {
                 var user = listBoxFollowing.SelectedItem.ToString();
                 listBoxFollowing.ClearSelected();
-                //controlla se la chat è già aperta, aggiungere listener close
+                //controlla se la chat è già aperta
                 if (chatOpened==null || !chatOpened.ReceiverName.Equals(user))
                 {
                     ChatForm chat = new ChatForm(user);
                     chatOpened = chat;
                     chat.Show();
-
-                    /*
-                    ChatDel del = chatOpened.Update;
-                    //del = delHome;
-                    Thread listener = new Thread(() => Client.ChatListener(del));
-                    listener.IsBackground = true;
-                    listener.Start();
-                    */ 
 
                     chat.FormClosing += Chat_FormClosing;
                     
@@ -147,10 +107,8 @@ namespace client
         {
             System.Diagnostics.Process cmd = new System.Diagnostics.Process();
             System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
-            //startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
             startInfo.FileName = "cmd.exe";
             startInfo.Arguments = @"/c python graph.py" +" "+ Client.utente.UserID +" "+ Client.utente.Nick;
-            //startInfo.UseShellExecute = false;
             startInfo.CreateNoWindow = true;
             startInfo.WorkingDirectory = "C:\\Users\\feder\\Documents\\UProjects\\APL\\GameProject\\python";
             cmd.StartInfo = startInfo;
@@ -164,7 +122,7 @@ namespace client
             {
                 var user = listBoxChat.SelectedItem.ToString();
                 listBoxChat.ClearSelected();
-                //controlla se la chat è già aperta, aggiungere listener close
+                //controlla se la chat è già aperta
                 if (chatOpened == null || !chatOpened.ReceiverName.Equals(user))
                 {
                     ChatForm chat = new ChatForm(user);
