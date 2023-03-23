@@ -67,7 +67,7 @@ func main() {
 		
 		for {
 			select {
-			//quando un client logga invia al login channel il suo id e il suo chatHandler channel
+			//quando un client logga invia al login channel il suo id e la sua connessione con il client
 			case user:= <-logChan:
 				clients[user.id] = user.conn
 			// in reqChan un client richiede la connessione per comunicare con un altro client: invia l'id dell utente che vuole
@@ -421,7 +421,7 @@ func handleClient(conn net.Conn){
 
 			//QUI DOVREI MANDARE LA LISTA DI TUTTI I SEGUITI DELL'UTENTE LOGGATO
 
-			relazioni, done := allRelation(1)
+			relazioni, done := allRelation(id)
 			fmt.Println(relazioni) //funziona
 
 			if done {
