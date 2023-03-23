@@ -1,5 +1,5 @@
 # APL_Project
-Applicativo composto da un server in Go, e due client in C# e Python e un database MySQL.
+Applicativo composto da un server in Go, due client in C# e Python e un database MySQL.
 
 Il database viene deployato in un container Docker, per avviarlo da terminale spostarsi nella directory del progetto e digitare:
 ```
