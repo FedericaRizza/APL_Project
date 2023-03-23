@@ -85,7 +85,9 @@ def mostra_grafo(id_utente, nickname):
 
     #AGGIUNGO TUTTI GLI ARCHI
     for nodo in grafo.dictNodi.values():
+        print(nodo.id)
         for connessione in nodo.listConnessioni:
+            print(nodo.id,connessione.arrivo)
         
             #x mi rappresenta gli estremi dell'arco (id nodo partenza e id nodo arrivo) (VALORI NEGLI ASSI DELLE ORDINATE)
             #y mi rappresenta nickname di nodo di partenza e destinazione (VALORI NEGLI ASSI DELLE ASCISSE)
@@ -113,12 +115,21 @@ def mostra_grafo(id_utente, nickname):
             '''
 
             if nodo.id == str(id_utente):
+                print(dictConversazioni)
+                fig.add_annotation(
+                    x=nodoArrivo_x, y=nodoArrivo_y, ax=nodoPartenza_x, ay=nodoPartenza_y,
+                    xref='x', yref='y', axref='x', ayref='y',
+                    showarrow=True, arrowhead=5, arrowsize=1, arrowwidth=2, arrowcolor = 'black' 
+                    )
                 for conversazione in dictConversazioni: 
+                    print('dentro for')
                     print(conversazione)
                     print(type(conversazione['IDmittente']))
                     print(type(nodo.id))
-                    print(type(connessione.arrivo))
+                    print(type(connessione.arrivo))                    
+
                     if int(nodo.id) == conversazione['IDmittente'] and int(connessione.arrivo) == conversazione['IDdestinatario'] and conversazione['Nmessaggi'] >=5 and conversazione['Nmessaggi'] <10:
+                        print('primo if')
                 #controllo per il PESO delle connessioni
                 #è come se stessi mettendo un testo con la freccia, ma non metto il testo. Con l'altro metodo non riuscivo a mettere la freccia
                         fig.add_annotation(
@@ -127,18 +138,21 @@ def mostra_grafo(id_utente, nickname):
                         showarrow=True, arrowhead=5, arrowsize=1, arrowwidth=3, arrowcolor = 'black',
                         )
                     elif int(nodo.id) == conversazione['IDmittente'] and int(connessione.arrivo) == conversazione['IDdestinatario'] and conversazione['Nmessaggi'] >=10:
+                        print('secondo if')
                         fig.add_annotation(
                         x=nodoArrivo_x, y=nodoArrivo_y, ax=nodoPartenza_x, ay=nodoPartenza_y,
                         xref='x', yref='y', axref='x', ayref='y',
                         showarrow=True, arrowhead=5, arrowsize=1, arrowwidth=5, arrowcolor = 'black',
                         )
                     elif int(nodo.id) == conversazione['IDmittente'] and int(connessione.arrivo) == conversazione['IDdestinatario'] and conversazione['Nmessaggi'] < 5:
+                        print('terzo if')
                         fig.add_annotation(
                         x=nodoArrivo_x, y=nodoArrivo_y, ax=nodoPartenza_x, ay=nodoPartenza_y,
                         xref='x', yref='y', axref='x', ayref='y',
                         showarrow=True, arrowhead=5, arrowsize=1, arrowwidth=2, arrowcolor = 'black' 
                         )
             else:
+                print('else')
                 fig.add_annotation(
                 x=nodoArrivo_x, y=nodoArrivo_y, ax=nodoPartenza_x, ay=nodoPartenza_y,
                 xref='x', yref='y', axref='x', ayref='y',

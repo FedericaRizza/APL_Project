@@ -41,5 +41,6 @@ class Grafo:
         #controllo che la connessione non esista già
         if Arco(nodo_destinazione) not in self.dictNodi[nodo_sorgente].listConnessioni:
             #aggiungo l'arco solo in una direzione crendo quindi un grafo diretto
+            print("sto aggiungendo la relazione...")
             self.dictNodi[nodo_sorgente].listConnessioni.append(Arco(nodo_destinazione))
         
