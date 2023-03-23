@@ -1,2 +1,1 @@
-pip install networkx
-pip install plotly
+plotly
