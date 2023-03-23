@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace client
 {
@@ -67,7 +68,7 @@ namespace client
         private void AddUser_FormClosing(object sender, FormClosingEventArgs e)
         {
             this.listBoxFollowing.Items.Clear();
-            this.listBoxFollowing.Items.AddRange(Client.utente.FollowingList.Values.ToArray()); //togliere
+            //this.listBoxFollowing.Items.AddRange(Client.utente.FollowingList.Values.ToArray()); //togliere
 
         }
 
@@ -137,7 +138,8 @@ namespace client
             {
                 var game = listBoxGames.SelectedItem.ToString();
                 listBoxFollowing.Items.Clear();
-                listBoxFollowing.Items.AddRange(Client.utente.SharedGames[game].ToArray());
+                if (Client.utente.SharedGames.ContainsKey(game))
+                    listBoxFollowing.Items.AddRange(Client.utente.SharedGames[game].ToArray());
             }
         }
 
@@ -148,8 +150,8 @@ namespace client
             //startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
             startInfo.FileName = "cmd.exe";
             startInfo.Arguments = @"/c python graph.py" +" "+ Client.utente.UserID +" "+ Client.utente.Nick;
-            MessageBox.Show(startInfo.Arguments);
             //startInfo.UseShellExecute = false;
+            startInfo.CreateNoWindow = true;
             startInfo.WorkingDirectory = "C:\\Users\\feder\\Documents\\UProjects\\APL\\GameProject\\python";
             cmd.StartInfo = startInfo;
             cmd.Start();
