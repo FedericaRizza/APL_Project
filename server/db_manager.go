@@ -146,6 +146,41 @@ func login(nick string, psw string, u *user) bool {
 	// idGameList = (query per salvare gli id dei giochi utente in una lista) 		for _,gioco:= range idGameList		 rows := (query che recupera i miei seguiti che hanno gioco)
 	//for rows.Next()  rows.Scan(&seguito)  if(seguito != u.Nick) u.setSharedGames(gioco, seguito) per non inserire anche l'utente che fa la richiesta
 
+
+	//query per creare la mappa gioco-following che hanno quel gioco
+	rows3, er3 := db.Query("SELECT id_gioco, nome FROM giochi g JOIN utente_giochi ug ON g.id_gioco = ug.gioco JOIN utenti u ON ug.utente = u.id_utente WHERE u.nickname = ?", nick)
+	if er3 != nil {
+		fmt.Println(er3)
+	 	return false
+	}
+   
+	var GameList = make(map[int]string)
+   
+	for rows3.Next() {
+		var idGioco int
+		var nameGioco string
+		rows3.Scan(&idGioco,&nameGioco)
+		fmt.Println("gioco in lista: ",nameGioco)
+		GameList[idGioco] = nameGioco
+		//GameList = append(GameList, nameGioco)
+	}
+   
+	for id, gioco := range GameList {
+	 	rows4, er4 := db.Query("SELECT u2.nickname FROM utenti u1 JOIN seguiti s ON u1.id_utente = s.utente JOIN utenti u2 ON s.seguito = u2.id_utente WHERE u1.id_utente = ? AND s.seguito IN (SELECT ug.utente FROM utente_giochi ug WHERE ug.gioco = ?)", u.UserID, id)
+		if er4 != nil {
+			fmt.Println(er4)
+			return false
+		}
+   
+		for rows4.Next() {
+		var seguito string
+		rows4.Scan(&seguito)
+		//non so se è necessario escludere l'utente perchè già viene escluso dalla query
+		u.setSharedGames(gioco, seguito)
+		fmt.Println("aggiungo ",gioco, seguito)
+		}
+	}
+
 	//prove stampe
 	/*for _, gioco := range u.gameList {
 		fmt.Println("giochi:", gioco)
@@ -485,21 +520,14 @@ func getChat(id1, id2 int) []msgData {
 
 	mData := make([]msgData,0,10)
 
-	/*if !rows.Next() {
-		fmt.Println("sono qui")
-		return mData
-	} else {*/
-		for rows.Next() {
-			var msg msgData
-			e := rows.Scan(&msg.Sender, &msg.Receiver, &msg.Text)
-			fmt.Println(msg.Sender, msg.Receiver,msg.Text)
-			if e != nil {
-				fmt.Println("qui: ", e)
-				return nil
-			}
-			mData = append(mData, msg)
-			fmt.Println("inizializzo la chat ",msg.Text)
-		//}
+	for rows.Next() {
+		var msg msgData
+		e := rows.Scan(&msg.Sender, &msg.Receiver, &msg.Text)
+		fmt.Println(msg.Sender, msg.Receiver,msg.Text)
+		if e != nil {
+			return nil
+		}
+		mData = append(mData, msg)
 	}
 	return mData
 
@@ -527,7 +555,6 @@ func saveMsg(fromID int, toID int, msg string) bool {
 	}
 
 	if !rows.Next() {
-		fmt.Println("conversazione non presente, la aggiungo")
 		_, e := db.Exec("INSERT INTO conversazioni (utente1, utente2) VALUES (?,?)", fromID, toID)
 		if e != nil {
 			return false
@@ -548,7 +575,6 @@ func saveMsg(fromID int, toID int, msg string) bool {
 	}
 	_, err2 := db.Exec("INSERT INTO messaggi (conversazione, mittente, destinatario, testo) VALUES (?,?,?,?)", IDconversazione, fromID, toID, msg)
 	if err2 != nil {
-		fmt.Println("sono in false insert mess ", err2)
 		return false
 	}
 	return true
